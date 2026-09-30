@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     // Notify admin about new registration
     try {
-      const adminEmail = process.env.ADMIN_EMAIL || 'drashti.barot@krishnaos.com';
+      const adminEmail = process.env.ADMIN_EMAIL || 'psoni@bimboss.com';
       await sendNewUserNotificationToAdmin({
         adminEmail,
         userName:  name,

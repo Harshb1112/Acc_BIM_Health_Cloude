@@ -37,7 +37,7 @@ const FEATURES = [
   'Revit 2023 – 2027 support',
 ];
 
-const PAYPAL_EMAIL = 'drashti.barot@krishnaos.com';
+const PAYPAL_EMAIL = 'psoni@bimboss.com';
 
 function StatusBadge({ status }: { status: string }) {
   if (status === 'pending')
