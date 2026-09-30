@@ -188,9 +188,9 @@ export default function SettingsPage() {
           <div className="p-8">
             {/* Profile Tab */}
             {activeTab === 'profile' && (
-              <div className="animate-fade-in">(
-              <div className="max-w-2xl">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Profile Information</h2>
+              <div className="animate-fade-in">
+                <div className="max-w-2xl">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Profile Information</h2>
                 
                 {/* Profile Image Upload */}
                 <div className="mb-8 flex flex-col items-center">
