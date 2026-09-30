@@ -9,7 +9,7 @@ import { verifyToken } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 300; // 5 minutes (Vercel Hobby plan max is 300s)
+export const maxDuration = 1800; // 30 minutes (changed from 5 minutes to support large files)
 
 const reportCache = new Map<string, unknown>();
 
@@ -28,8 +28,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
-    const fileName = file.name.toLowerCase();
-    if (!fileName.endsWith('.rvt')) {
+    const fileName = file.name;
+    if (!fileName.toLowerCase().endsWith('.rvt')) {
       return NextResponse.json(
         { error: 'Invalid file type. Only .rvt files are supported.' },
         { status: 400 }
@@ -56,7 +56,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Save file
-    const fileName = file.name;
     const filePath = path.join(uploadsDir, fileName);
     await writeFile(filePath, buffer);
 

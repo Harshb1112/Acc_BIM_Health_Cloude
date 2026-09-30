@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "app/api/upload/route.ts": {
+      "maxDuration": 1800
+    },
+    "app/api/upload-complete/route.ts": {
+      "maxDuration": 1800
+    },
+    "app/api/upload-chunk/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}
