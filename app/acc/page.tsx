@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
-import { FolderIcon, FileIcon, CloudIcon, RefreshCwIcon, PlayIcon } from 'lucide-react';
+import { FolderIcon, FileIcon, CloudIcon, RefreshCwIcon, PlayIcon, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import axios from 'axios';
 
 interface Hub {
@@ -59,6 +59,7 @@ export default function ACCBrowserPage() {
   const [processing, setProcessing] = useState(false);
   const [testingForge, setTestingForge] = useState(false);
   const [forgeTestResult, setForgeTestResult] = useState<any>(null);
+  const [showHelp, setShowHelp] = useState(false);
 
   const API_URL = '/api';
 
@@ -563,6 +564,144 @@ export default function ACCBrowserPage() {
             {userToken && (
               <div className="mt-3 text-sm text-green-600 font-medium">
                 ✅ Logged in with Autodesk
+              </div>
+            )}
+          </div>
+
+          {/* Help Section - How to Get Credentials */}
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <button
+              onClick={() => setShowHelp(!showHelp)}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <div className="flex items-center gap-3">
+                <HelpCircle className="w-6 h-6 text-blue-600" />
+                <h2 className="text-xl font-semibold text-gray-800">How to Get Client ID & Client Secret?</h2>
+              </div>
+              {showHelp ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            </button>
+
+            {showHelp && (
+              <div className="mt-6 space-y-6">
+                {/* Step 1 */}
+                <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                    <h3 className="text-lg font-bold text-gray-900">Create APS Account</h3>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2">
+                    Go to <a href="https://aps.autodesk.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-semibold underline">aps.autodesk.com</a> and sign in with your Autodesk account (same as ACC/BIM 360).
+                  </p>
+                </div>
+
+                {/* Step 2 */}
+                <div className="bg-green-50 border-l-4 border-green-600 p-4 rounded-r-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                    <h3 className="text-lg font-bold text-gray-900">Create New App</h3>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2">
+                    Click <strong>"Create App"</strong> at <a href="https://aps.autodesk.com/myapps" target="_blank" rel="noopener noreferrer" className="text-green-600 font-semibold underline">aps.autodesk.com/myapps</a>
+                  </p>
+                  <ul className="list-disc list-inside text-sm text-gray-700 space-y-1 ml-4">
+                    <li>App Name: <code className="bg-gray-200 px-2 py-0.5 rounded">BIM Health Report Client</code></li>
+                    <li>App Type: <strong>Web App</strong></li>
+                  </ul>
+                </div>
+
+                {/* Step 3 */}
+                <div className="bg-orange-50 border-l-4 border-orange-600 p-4 rounded-r-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                    <h3 className="text-lg font-bold text-gray-900">Set Callback URL (CRITICAL!)</h3>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2">
+                    In <strong>Callback URL</strong> field, enter EXACTLY:
+                  </p>
+                  <div className="bg-white border border-orange-300 rounded p-3 font-mono text-sm mb-2 flex items-center justify-between">
+                    <code>https://acc-bim-health-cloude.vercel.app/auth/callback</code>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText('https://acc-bim-health-cloude.vercel.app/auth/callback');
+                        alert('Copied to clipboard!');
+                      }}
+                      className="ml-2 px-3 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                  <p className="text-xs text-orange-700 font-semibold">
+                    ⚠️ Must match EXACTLY (no trailing slash, HTTPS required)
+                  </p>
+                </div>
+
+                {/* Step 4 */}
+                <div className="bg-purple-50 border-l-4 border-purple-600 p-4 rounded-r-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">4</div>
+                    <h3 className="text-lg font-bold text-gray-900">Enable APIs</h3>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2">Check these APIs:</p>
+                  <ul className="list-none text-sm text-gray-700 space-y-1 ml-4">
+                    <li>✅ <strong>Data Management API</strong> (required)</li>
+                    <li>✅ <strong>Model Derivative API</strong> (required)</li>
+                    <li>✅ <strong>Design Automation API</strong> (required)</li>
+                  </ul>
+                </div>
+
+                {/* Step 5 */}
+                <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 rounded-r-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">5</div>
+                    <h3 className="text-lg font-bold text-gray-900">Copy Credentials</h3>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2">
+                    After creating the app, copy:
+                  </p>
+                  <ul className="list-disc list-inside text-sm text-gray-700 space-y-1 ml-4">
+                    <li><strong>Client ID</strong> (visible by default)</li>
+                    <li><strong>Client Secret</strong> (click "Show" to reveal)</li>
+                  </ul>
+                  <p className="text-xs text-red-600 font-semibold mt-2">
+                    🔒 Keep Client Secret PRIVATE! Don&apos;t share publicly.
+                  </p>
+                </div>
+
+                {/* Step 6 */}
+                <div className="bg-teal-50 border-l-4 border-teal-600 p-4 rounded-r-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold">6</div>
+                    <h3 className="text-lg font-bold text-gray-900">Use in This App</h3>
+                  </div>
+                  <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1 ml-4">
+                    <li>Paste <strong>Client ID</strong> and <strong>Client Secret</strong> above</li>
+                    <li>Click <strong>"Save Credentials"</strong></li>
+                    <li>Click <strong>"Login with Autodesk"</strong></li>
+                    <li>Grant access when prompted</li>
+                    <li>Click <strong>"Load Hubs"</strong> to browse ACC projects</li>
+                  </ol>
+                </div>
+
+                {/* Troubleshooting */}
+                <div className="bg-gray-50 border border-gray-300 rounded-lg p-4">
+                  <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    <span className="text-red-600">🔧</span> Common Errors
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-700">
+                    <div>
+                      <p className="font-semibold text-red-600">Error: "Request error" during login</p>
+                      <p className="ml-4">→ Check Callback URL is set correctly in APS app</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-red-600">Error: "Authentication failed"</p>
+                      <p className="ml-4">→ Verify Client ID and Secret are correct (no extra spaces)</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-red-600">Error: "Missing authorization header"</p>
+                      <p className="ml-4">→ Click "Login with Autodesk" first, then "Load Hubs"</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
