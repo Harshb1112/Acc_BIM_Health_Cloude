@@ -5,6 +5,7 @@ const axios = require('axios');
 
 const FILE_PATH = 'G:\\PROJECT-HB\\ACC bim health chekup report\\cloude_plugin\\uploads\\RVT\\Snowdon Towers Sample Architectural.rvt';
 const API_BASE = 'https://bim-health-report.vercel.app';
+const AUTH_TOKEN = 'YOUR_TOKEN_HERE'; // Optional for testing chunks
 
 async function testSingleChunk() {
   console.log('📂 Reading first 4MB of file...');
