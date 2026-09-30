@@ -6,6 +6,8 @@ import {
 } from '@/lib/email';
 import { isAdmin } from '@/lib/admin-auth';
 
+export const dynamic = 'force-dynamic';
+
 const PLAN_DURATION: Record<string, number> = {
   '1_month':   30,
   '3_months':  90,

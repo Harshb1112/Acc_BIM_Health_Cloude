@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAdmin } from '@/lib/admin-auth';
 
+export const dynamic = 'force-dynamic';
+
 // DELETE /api/admin/payments/delete?id=123
 export async function DELETE(req: NextRequest) {
   if (!isAdmin(req)) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });

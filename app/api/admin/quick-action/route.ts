@@ -6,6 +6,8 @@ import {
 } from '@/lib/email';
 import { isAdmin } from '@/lib/admin-auth';
 
+export const dynamic = 'force-dynamic';
+
 const APP_URL     = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
 const PLAN_DURATION: Record<string, number> = {

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAdmin } from '@/lib/admin-auth';
 
+export const dynamic = 'force-dynamic';
+
 // DELETE /api/admin/users?id=123
 // Deletes user + all related data (sessions, OTPs, subscriptions, activities, paymentRequests)
 export async function DELETE(req: NextRequest) {
