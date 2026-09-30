@@ -1,0 +1,160 @@
+// Prisma Schema for BIM Health Report Plugin
+// Database: PostgreSQL (Supabase)
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User Account Model
+model User {
+  id            Int       @id @default(autoincrement())
+  name          String
+  email         String    @unique
+  phone         String?
+  region        String?
+  password      String    // Hashed with bcrypt
+  isVerified    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  otps          OTP[]
+  subscriptions Subscription[]
+  activities    Activity[]
+  sessions      Session[]
+  paymentRequests PaymentRequest[]
+  
+  @@index([email])
+}
+
+// OTP Verification Model
+model OTP {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String   // 6-digit code
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([code])
+}
+
+// Subscription Model
+model Subscription {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan          String   // "trial", "1_month", "3_months", "6_months", "12_months"
+  status        String   @default("active") // "active", "expired", "cancelled"
+  startDate     DateTime @default(now())
+  endDate       DateTime
+  isTrial       Boolean  @default(false)
+  paymentId     String?  // Stripe/Razorpay payment ID
+  amount        Float?
+  currency      String   @default("USD")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([endDate])
+}
+
+// Session Model (JWT tokens)
+model Session {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token        String   @unique
+  refreshToken String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  
+  @@index([userId])
+  @@index([token])
+}
+
+// User Activity Logs
+model Activity {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activityType String   // "LOGIN", "LOGOUT", "REPORT_GENERATED", "SUBSCRIPTION_CREATED", etc.
+  details      String?
+  ipAddress    String?
+  timestamp    DateTime @default(now())
+  
+  @@index([userId])
+  @@index([activityType])
+  @@index([timestamp])
+}
+
+// Subscription Plans (Admin managed)
+model Plan {
+  id          Int      @id @default(autoincrement())
+  name        String   // "1 Month", "1 Year"
+  planId      String   @unique // "1_month", "12_months"
+  duration    Int      // days
+  price       Float
+  currency    String   @default("USD")
+  description String?
+  isActive    Boolean  @default(true)
+  isPopular   Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+}
+
+// Manual Payment Request Model
+model PaymentRequest {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan            String   // "1_month", "3_months", "6_months", "12_months"
+  amount          Float
+  currency        String   @default("USD")
+  paypalEmail     String?  // PayPal email used for payment
+  screenshotUrl   String   // Uploaded screenshot path
+  screenshotName  String?
+  transactionNote String?  // Any note from user
+  status          String   @default("pending") // "pending", "approved", "rejected"
+  adminNote       String?  // Admin rejection reason
+  reviewedAt      DateTime?
+  reviewedBy      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Legacy tables (keep for migration)
+model Activation {
+  id                Int      @id @default(autoincrement())
+  email             String
+  licenseKey        String
+  pluginName        String   @default("BIM Health Report")
+  subscriptionPlan  String
+  planDuration      Int
+  machineId         String
+  activationDate    DateTime @default(now())
+  expiryDate        DateTime
+  status            String   @default("active")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([email])
+  @@index([machineId])
+  @@index([status])
+}
