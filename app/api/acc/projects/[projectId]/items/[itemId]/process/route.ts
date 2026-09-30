@@ -4,7 +4,7 @@ import { ActivitySetupService } from '@/lib/services/activitySetup';
 import crypto from 'crypto';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 7200; // 120 minutes (2 hours)
+export const maxDuration = 300; // 5 minutes (Vercel Hobby plan max is 300s)
 
 export async function POST(
   request: NextRequest,
@@ -363,13 +363,13 @@ export async function POST(
         // Poll for completion
         let status = 'pending';
         let attempts = 0;
-        const maxAttempts = 720;  // 60 minutes timeout (720 × 5 seconds)
+        const maxAttempts = 48;  // ~4 minutes timeout (48 × 5 seconds), fits within Vercel 300s limit
 
-        console.log(`   ⏳ Polling for completion (max 60 minutes)...`);
+        console.log(`   ⏳ Polling for completion (max ~4 minutes)...`);
 
         while (status === 'pending' || status === 'inprogress') {
           if (attempts >= maxAttempts) {
-            throw new Error('Timeout - work item took longer than 60 minutes');
+            throw new Error('Timeout - work item took longer than 4 minutes (Vercel 300s limit)');
           }
 
           await new Promise(resolve => setTimeout(resolve, 5000));
