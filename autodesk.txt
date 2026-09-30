@@ -1,0 +1,389 @@
+═══════════════════════════════════════════════════════════════════════════════
+AUTODESK APP STORE - BIM HEALTH REPORT PUBLISHING FORM
+═══════════════════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────────────────
+1. APP NAME (50 chars max)
+───────────────────────────────────────────────────────────────────────────────
+BIM Health Report
+
+
+───────────────────────────────────────────────────────────────────────────────
+2. APP SHORT DESCRIPTION (200 chars max)
+───────────────────────────────────────────────────────────────────────────────
+Analyze Revit models stored in Autodesk Construction Cloud. Get instant health reports with element statistics, quality scores, issue detection, and performance metrics — directly from your ACC projects.
+
+(199 characters)
+
+
+───────────────────────────────────────────────────────────────────────────────
+3. APP DESCRIPTION (4000 chars max)
+───────────────────────────────────────────────────────────────────────────────
+BIM Health Report is a cloud-based analysis tool for AEC professionals that connects directly to Autodesk Construction Cloud (ACC) to process Revit (.rvt) files and generate comprehensive health reports — without leaving your browser.
+
+WHAT IT DOES
+──────────────
+BIM Health Report uses Autodesk Platform Services (APS) Design Automation to process your Revit models server-side. Once processing is complete, it delivers a structured health report covering:
+
+• Element Statistics – Walls, floors, ceilings, doors, windows, columns, beams, rooms, and more
+• Quality Metrics – Model completeness, geometric accuracy, and information richness scores
+• Overall Grade – A/B/C/D grading system for quick model quality assessment
+• Issue Detection – Warnings and errors flagged inside the Revit model
+• Performance Analysis – Performance rating and optimization insights
+• Project Data – Workset count, design options, Revit links, and CAD links
+
+HOW IT WORKS
+─────────────
+1. Connect your Autodesk credentials (Client ID + Client Secret) inside the app
+2. Log in with your Autodesk account via OAuth to access your ACC hubs
+3. Browse your ACC hubs → projects → folders to locate your Revit file
+4. Click "Process" on any .rvt file — the app uses Design Automation to analyze it
+5. Download the JSON report or view the interactive dashboard instantly
+
+KEY FEATURES
+─────────────
+▸ Direct ACC Integration – Browse hubs, projects, and folder structures natively
+▸ Automatic Revit Version Detection – Supports Revit 2023, 2024, 2025, 2026, and 2027
+▸ Interactive Dashboard – Charts, radar graphs, and sortable tables for all reports
+▸ Report History – All generated reports are saved and accessible anytime
+▸ Export Options – Download reports as JSON for further processing
+▸ Manual Upload – Also supports direct .rvt or JSON file uploads (no ACC required)
+▸ Subscription Plans – 7-day free trial with no credit card required
+
+WHO IS IT FOR
+──────────────
+• BIM Managers who need to audit model quality across multiple projects
+• Architects and engineers who want fast feedback on their Revit models
+• Project managers tracking BIM standards compliance across a team
+• Firms running quality control workflows before milestone submissions
+
+SUPPORTED FILE TYPES
+─────────────────────
+• Revit files (.rvt) — processed via Autodesk Design Automation
+• BIM Health JSON reports — for upload and re-analysis
+
+REQUIREMENTS
+─────────────
+• An active Autodesk account with access to ACC/BIM 360
+• An APS (Autodesk Platform Services) app with Client ID and Client Secret
+• Data:Read scope enabled on your APS application
+
+(~2800 characters)
+
+
+───────────────────────────────────────────────────────────────────────────────
+4. PUBLISHER PRIVACY POLICY
+───────────────────────────────────────────────────────────────────────────────
+(Leave blank or add URL if you have a privacy policy page)
+
+
+───────────────────────────────────────────────────────────────────────────────
+5. APP VERSION
+───────────────────────────────────────────────────────────────────────────────
+Version Number: 1.0.0
+
+Version Description:
+Initial release. Supports direct ACC project browsing, Revit model processing via Design Automation (Revit 2023–2027), interactive health report dashboard, report history, and JSON export. Includes 7-day free trial.
+
+
+───────────────────────────────────────────────────────────────────────────────
+6. WEB SERVICE URL
+───────────────────────────────────────────────────────────────────────────────
+https://bim-health-report.vercel.app
+
+
+───────────────────────────────────────────────────────────────────────────────
+7. APP ICON
+───────────────────────────────────────────────────────────────────────────────
+File: bim-health-logo-modern.png (123 KB)
+✅ Already uploaded
+
+
+───────────────────────────────────────────────────────────────────────────────
+8. APP SCREENSHOT
+───────────────────────────────────────────────────────────────────────────────
+(Upload screenshots of your app dashboard, ACC browser, report view, etc.)
+Maximum upload size: 2 MB per image
+Supported: png, gif, jpg, jpeg
+
+(Or provide YouTube/Autodesk Screencast video link)
+
+
+───────────────────────────────────────────────────────────────────────────────
+9. GENERAL USAGE INSTRUCTIONS
+───────────────────────────────────────────────────────────────────────────────
+1. SIGN UP / SIGN IN
+   Visit the app URL and register for a free 7-day trial (no credit card needed). Existing users can sign in directly.
+
+2. ENTER AUTODESK CREDENTIALS
+   Navigate to the ACC Browser page. Enter your APS Application Client ID and Client Secret. These are obtained from the Autodesk Platform Services portal (aps.autodesk.com). Click "Save Credentials."
+
+3. LOG IN WITH AUTODESK
+   Click "Login with Autodesk" to initiate the OAuth flow. You will be redirected to Autodesk's login page. After approving access, you are returned to the app.
+
+4. BROWSE YOUR ACC PROJECTS
+   Click "Load Hubs" to see your BIM 360/ACC hubs. Select a hub to load its projects. Select a project to browse its folder structure. Navigate folders to find your Revit (.rvt) files.
+
+5. PROCESS A FILE
+   Click the "Process" button next to any .rvt file. The app will submit the file to Autodesk Design Automation for analysis. Processing typically takes 1–5 minutes depending on model size and complexity.
+
+6. VIEW YOUR REPORT
+   Once processing completes, you are automatically redirected to the report page. The report displays element counts, quality metrics, issues, performance ratings, and an overall grade.
+
+7. EXPORT & REVIEW
+   Download the report as a JSON file for archiving or integration into your own tools. All reports are saved in your dashboard history for future reference.
+
+ALTERNATIVE: MANUAL UPLOAD
+   If you prefer not to use ACC integration, navigate to the Upload page and upload a .rvt file or an existing BIM Health JSON report directly.
+
+
+───────────────────────────────────────────────────────────────────────────────
+10. SUPPORT INFORMATION (1000 chars max)
+───────────────────────────────────────────────────────────────────────────────
+For technical support, questions, or feedback, please contact us via email:
+
+<b>Email:</b> support@bimhealthreport.com
+
+Support is available Monday to Friday, 9:00 AM – 6:00 PM IST (UTC+5:30).
+
+We aim to respond to all queries within 1 business day.
+
+For common issues and FAQs, visit our documentation page at:
+<a href="https://bim-health-report.vercel.app">https://bim-health-report.vercel.app</a>
+
+When contacting support, please include:
+• Your registered email address
+• A description of the issue
+• The Revit file name or project name (if applicable)
+• Any error messages you received
+
+For billing and subscription inquiries, include your account email and plan details.
+
+
+───────────────────────────────────────────────────────────────────────────────
+11. ADDITIONAL INFORMATION (2000 chars max)
+───────────────────────────────────────────────────────────────────────────────
+<b>TECHNICAL STACK</b>
+• Built with Next.js 14 (App Router) and TypeScript
+• Autodesk Platform Services: Data Management API, Design Automation API, Model Derivative API
+• Database: PostgreSQL via Prisma ORM
+• Hosted on Vercel
+
+<b>APS PERMISSIONS REQUIRED</b>
+Your APS application must have the following OAuth scopes enabled:
+  data:read   – to access ACC files
+  data:write  – to store output reports
+  code:all    – for Design Automation workitems
+  bucket:create, bucket:read – for OSS output storage
+
+<b>REVIT VERSION SUPPORT</b>
+The app automatically detects the Revit version of your file and runs it through the correct Design Automation engine. Supported versions: Revit 2023, 2024, 2025, 2026, 2027.
+
+<b>SUBSCRIPTION PLANS</b>
+• 7-Day Free Trial – Full feature access, no credit card required
+• Paid Plans – Available after trial; manage via the Billing dashboard inside the app
+
+<b>DATA PRIVACY</b>
+Revit files are processed transiently via Autodesk Design Automation. Output reports are stored in your account only. No model geometry or proprietary data is retained on our servers beyond the report JSON.
+
+<b>KNOWN LIMITATIONS</b>
+• Processing time depends on Revit model complexity (typically 1–5 minutes)
+• Very large models (>500 MB) may approach the processing time limit
+• ACC file access requires proper APS app permissions (data:read scope)
+
+
+───────────────────────────────────────────────────────────────────────────────
+12. KNOWN ISSUES (1000 chars max)
+───────────────────────────────────────────────────────────────────────────────
+• Large Revit files (over 500 MB) may occasionally time out during processing. If this occurs, try uploading the file manually via the Upload page instead.
+
+• ACC file browsing requires your APS application to have the "data:read" OAuth scope. If you see a permissions error when loading hubs, verify your APS app configuration at aps.autodesk.com.
+
+• Revit version auto-detection relies on the Autodesk Model Derivative manifest. For files that have not been previously translated, the app will attempt all supported versions (2023–2027) automatically.
+
+• The app is hosted on Vercel's Hobby plan. Serverless function execution is limited to 300 seconds. Files requiring longer processing will return a timeout error.
+
+
+───────────────────────────────────────────────────────────────────────────────
+13. LEARN MORE URL
+───────────────────────────────────────────────────────────────────────────────
+https://bim-health-report.vercel.app
+
+
+═══════════════════════════════════════════════════════════════════════════════
+NOTES
+═══════════════════════════════════════════════════════════════════════════════
+1. Update "support@bimhealthreport.com" to your actual support email
+2. Update Web Service URL if your Vercel domain is different
+3. Take screenshots of:
+   - Dashboard with charts
+   - ACC browser showing hubs/projects/files
+   - Report detail page with grades and metrics
+   - Upload page
+4. Upload logo: bim-health-logo-modern.png (already done ✅)
+
+
+
+═══════════════════════════════════════════════════════════════════════════════
+HOW TO SETUP AUTODESK PLATFORM SERVICES (APS) APP
+STEP-BY-STEP GUIDE FOR USERS
+═══════════════════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────────────────
+STEP 1: CREATE AUTODESK PLATFORM SERVICES (APS) ACCOUNT
+───────────────────────────────────────────────────────────────────────────────
+
+1. Go to: https://aps.autodesk.com
+2. Click "Sign In" (top right corner)
+3. Use your Autodesk account (same as ACC/BIM 360 login)
+4. If no account: Click "Create Account" and register
+
+
+───────────────────────────────────────────────────────────────────────────────
+STEP 2: CREATE A NEW APP
+───────────────────────────────────────────────────────────────────────────────
+
+1. After login, go to: https://aps.autodesk.com/myapps
+2. Click "Create App" button
+3. Fill in the form:
+   
+   App Name: BIM Health Report Client
+   
+   App Description: Personal app to access BIM Health Report tool
+   
+   App Type: Select "Web App"
+
+
+───────────────────────────────────────────────────────────────────────────────
+STEP 3: CONFIGURE CALLBACK URL (MOST IMPORTANT!)
+───────────────────────────────────────────────────────────────────────────────
+
+In the "Callback URL" field, enter EXACTLY:
+
+   https://bim-health-report.vercel.app/auth/callback
+
+⚠️ IMPORTANT: 
+   - NO trailing slash (/)
+   - HTTPS required (not http)
+   - Must match exactly
+   - If you're testing on localhost, use: http://localhost:3000/auth/callback
+
+
+───────────────────────────────────────────────────────────────────────────────
+STEP 4: SELECT APIs (ENABLE REQUIRED APIS)
+───────────────────────────────────────────────────────────────────────────────
+
+Check these APIs:
+
+✅ Data Management API (REQUIRED)
+✅ Model Derivative API (REQUIRED)
+✅ Design Automation API (REQUIRED - for processing Revit files)
+✅ Authentication (OAuth) - automatically enabled
+
+
+───────────────────────────────────────────────────────────────────────────────
+STEP 5: GET YOUR CREDENTIALS
+───────────────────────────────────────────────────────────────────────────────
+
+After creating the app:
+
+1. You'll see:
+   - Client ID (looks like: mmkSETAs4xPXHcGIYUu4pyvsGcNXt8eTcy66Vcydgr3OPRQ)
+   - Client Secret (hidden with dots: •••••••••••••)
+
+2. Click "Show" next to Client Secret to reveal it
+
+3. COPY BOTH:
+   - Client ID
+   - Client Secret
+
+⚠️ Keep Client Secret PRIVATE! Don't share publicly.
+
+
+───────────────────────────────────────────────────────────────────────────────
+STEP 6: USE CREDENTIALS IN BIM HEALTH REPORT APP
+───────────────────────────────────────────────────────────────────────────────
+
+1. Go to: https://bim-health-report.vercel.app/acc
+
+2. In the "Autodesk Credentials" section:
+   - Paste Client ID in first field
+   - Paste Client Secret in second field
+
+3. Click "Save Credentials"
+
+4. Click "Login with Autodesk"
+
+5. Autodesk login page will open → enter your Autodesk email/password
+
+6. Click "Allow" to grant access
+
+7. You'll be redirected back → now you can browse ACC projects!
+
+
+───────────────────────────────────────────────────────────────────────────────
+TROUBLESHOOTING COMMON ERRORS
+───────────────────────────────────────────────────────────────────────────────
+
+ERROR: "Request error" on Autodesk login page
+FIX: 
+   - Check Callback URL is EXACTLY: 
+     https://bim-health-report.vercel.app/auth/callback
+   - No extra spaces or characters
+   - Must end with /auth/callback
+
+ERROR: "Authentication failed"
+FIX:
+   - Verify Client ID and Client Secret are correct
+   - Copy-paste again (avoid typing manually)
+   - Check for extra spaces
+
+ERROR: "Missing authorization header" when loading hubs
+FIX:
+   - Click "Login with Autodesk" first
+   - Complete the OAuth flow
+   - Then click "Load Hubs"
+
+ERROR: "ACC File Processing Not Available"
+FIX:
+   - Your app doesn't have BIM 360/ACC API permissions
+   - Solution: Use "Manual Upload" instead (Upload page)
+   - OR: Contact Autodesk Support to request BIM 360/ACC API access
+
+
+───────────────────────────────────────────────────────────────────────────────
+SUMMARY - QUICK CHECKLIST
+───────────────────────────────────────────────────────────────────────────────
+
+□ Created APS account at aps.autodesk.com
+□ Created new app
+□ Set Callback URL: https://bim-health-report.vercel.app/auth/callback
+□ Enabled Data Management API
+□ Enabled Model Derivative API
+□ Enabled Design Automation API
+□ Copied Client ID
+□ Copied Client Secret
+□ Pasted both in BIM Health Report app
+□ Saved credentials
+□ Logged in with Autodesk
+□ Granted access when prompted
+□ Successfully loaded ACC hubs
+
+
+───────────────────────────────────────────────────────────────────────────────
+VIDEO TUTORIAL (IF NEEDED)
+───────────────────────────────────────────────────────────────────────────────
+
+You can create a video showing:
+1. Creating APS app
+2. Setting callback URL
+3. Copying credentials
+4. Using them in BIM Health Report app
+5. Login flow
+
+Upload to YouTube and share link with users.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+END OF SETUP GUIDE
+═══════════════════════════════════════════════════════════════════════════════

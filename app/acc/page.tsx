@@ -619,10 +619,10 @@ export default function ACCBrowserPage() {
                     In <strong>Callback URL</strong> field, enter EXACTLY:
                   </p>
                   <div className="bg-white border border-orange-300 rounded p-3 font-mono text-sm mb-2 flex items-center justify-between">
-                    <code>https://acc-bim-health-cloude.vercel.app/auth/callback</code>
+                    <code>https://bim-health-report.vercel.app/auth/callback</code>
                     <button
                       onClick={() => {
-                        navigator.clipboard.writeText('https://acc-bim-health-cloude.vercel.app/auth/callback');
+                        navigator.clipboard.writeText('https://bim-health-report.vercel.app/auth/callback');
                         alert('Copied to clipboard!');
                       }}
                       className="ml-2 px-3 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700"
