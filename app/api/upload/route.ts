@@ -62,8 +62,36 @@ export async function POST(request: NextRequest) {
     // Generate unique report ID
     const reportId = crypto.randomBytes(16).toString('hex');
 
-    // Save report data to session storage (in-memory for now)
-    // In production, you'd save this to a database
+    // Get user ID from token
+    const token = request.headers.get('authorization')?.replace('Bearer ', '');
+    const { verifyToken } = await import('@/lib/auth');
+    const payload = token ? verifyToken(token) : null;
+
+    if (!payload) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    // Save report to database
+    try {
+      await prisma.report.create({
+        data: {
+          id: reportId,
+          userId: payload.userId,
+          projectName: reportData.projectName || fileName.replace('.rvt', ''),
+          fileName: fileName,
+          reportData: reportData as any, // Prisma will handle JSON serialization
+          overallGrade: reportData.overallGrade || null,
+          totalElements: reportData.statistics?.totalElements || 0,
+          uploadedAt: new Date(),
+        },
+      });
+      console.log(`💾 Report saved to database with ID: ${reportId}`);
+    } catch (dbError) {
+      console.error('❌ Database save error:', dbError);
+      // Continue even if DB save fails - report is in cache
+    }
+
+    // Also save to cache for immediate access
     reportCache.set(reportId, reportData);
 
     // Cleanup file after processing
