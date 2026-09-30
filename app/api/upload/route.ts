@@ -7,7 +7,7 @@ import crypto from 'crypto';
 import { requireActiveSubscription } from '@/lib/subscription-auth';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 7200; // 120 minutes (2 hours)
+export const maxDuration = 300; // 5 minutes (Vercel Hobby plan max is 300s)
 
 const reportCache = new Map<string, unknown>();
 
