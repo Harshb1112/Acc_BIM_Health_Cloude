@@ -107,6 +107,7 @@ export default function UploadPage() {
       const endpoint = uploadType === 'rvt' ? '/api/upload' : '/api/upload-json';
       const response = await fetch(endpoint, {
         method: 'POST',
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}` },
         body: formData,
       });
 

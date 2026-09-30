@@ -4,9 +4,16 @@ import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LayoutDashboard, Upload, FileText, Activity, Settings, Cloud, CreditCard, LogOut, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import SubscriptionGuard from '@/components/SubscriptionGuard';
+import { useSubscriptionGuard } from '@/lib/useSubscriptionGuard';
 
 interface LayoutProps {
   children: React.ReactNode;
+}
+
+function ProtectedLayoutContent({ children }: LayoutProps) {
+  const subscription = useSubscriptionGuard();
+  return <SubscriptionGuard sub={subscription}>{children}</SubscriptionGuard>;
 }
 
 export default function Layout({ children }: LayoutProps) {
@@ -231,7 +238,9 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-6 py-8">
-        {children}
+        {['/billing', '/dashboard', '/upload'].includes(pathname)
+          ? children
+          : <ProtectedLayoutContent>{children}</ProtectedLayoutContent>}
       </main>
 
       {/* Footer */}

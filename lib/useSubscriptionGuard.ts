@@ -23,38 +23,74 @@ export function useSubscriptionGuard(redirectOnExpire = false): SubInfo {
   const [info, setInfo] = useState<SubInfo>({ status: 'loading' });
 
   useEffect(() => {
-    const raw = localStorage.getItem('subscription');
+    let cancelled = false;
 
-    if (!raw) {
-      setInfo({ status: 'none' });
-      if (redirectOnExpire) router.push('/billing');
-      return;
-    }
+    const setUnavailable = (status: 'expired' | 'none') => {
+      localStorage.removeItem('subscription');
+      if (cancelled) return;
+      setInfo({ status });
+      if (redirectOnExpire) router.replace('/billing');
+    };
 
-    try {
-      const sub     = JSON.parse(raw);
-      const endDate = new Date(sub.endDate);
-      const now     = new Date();
-      const diffMs  = endDate.getTime() - now.getTime();
-      const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-
-      if (daysLeft <= 0 || sub.status !== 'active') {
-        setInfo({ status: 'expired', endDate, daysLeft: 0, plan: sub.plan });
-        if (redirectOnExpire) router.push('/billing');
+    const refreshSubscription = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        setUnavailable('none');
         return;
       }
 
-      setInfo({
-        status:   sub.isTrial ? 'trial' : 'active',
-        plan:     sub.plan,
-        endDate,
-        daysLeft,
-        isTrial:  sub.isTrial,
-      });
-    } catch {
-      setInfo({ status: 'none' });
-      if (redirectOnExpire) router.push('/billing');
-    }
+      try {
+        const response = await fetch('/api/auth/subscription', {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-store',
+        });
+        if (!response.ok) {
+          setUnavailable('none');
+          return;
+        }
+
+        const data = await response.json();
+        const subscription = data.success ? data.subscription : null;
+        if (!subscription) {
+          setUnavailable('none');
+          return;
+        }
+
+        const endDate = new Date(subscription.endDate);
+        const daysLeft = Math.ceil((endDate.getTime() - Date.now()) / 86400000);
+        if (!Number.isFinite(daysLeft) || daysLeft <= 0 || subscription.status !== 'active') {
+          setUnavailable('expired');
+          return;
+        }
+
+        localStorage.setItem('subscription', JSON.stringify(subscription));
+        if (!cancelled) {
+          setInfo({
+            status: subscription.isTrial ? 'trial' : 'active',
+            plan: subscription.plan,
+            endDate,
+            daysLeft,
+            isTrial: subscription.isTrial,
+          });
+        }
+      } catch {
+        setUnavailable('none');
+      }
+    };
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') void refreshSubscription();
+    };
+
+    void refreshSubscription();
+    window.addEventListener('focus', refreshWhenVisible);
+    const interval = window.setInterval(refreshWhenVisible, 30_000);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener('focus', refreshWhenVisible);
+      window.clearInterval(interval);
+    };
   }, [redirectOnExpire, router]);
 
   return info;

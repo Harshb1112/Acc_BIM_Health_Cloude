@@ -71,7 +71,9 @@ export default function ReportDetail() {
 
   const fetchReport = async () => {
     try {
-      const response = await axios.get(`/api/report/${id}`);
+      const response = await axios.get(`/api/report/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}` },
+      });
       // Next.js API returns { success: true, data: reportData }
       const reportData = response.data.data || response.data;
       setReport(reportData);
@@ -649,7 +651,9 @@ export default function ReportDetail() {
     } else {
       // Excel export
       try {
-        const response = await fetch(`/api/report/${id}/export/excel`);
+        const response = await fetch(`/api/report/${id}/export/excel`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}` },
+        });
         
         if (!response.ok) {
           throw new Error('Failed to export to Excel');

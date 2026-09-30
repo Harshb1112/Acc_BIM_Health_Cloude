@@ -45,7 +45,9 @@ export default function DashboardPage() {
 
   const fetchReports = async () => {
     try {
-      const response = await fetch('/api/reports');
+      const response = await fetch('/api/reports', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}` },
+      });
       const data = await response.json();
       
       if (data.success) {
@@ -68,6 +70,7 @@ export default function DashboardPage() {
     try {
       const response = await fetch(`/api/reports?id=${reportId}`, {
         method: 'DELETE',
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}` },
       });
 
       const data = await response.json();

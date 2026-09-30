@@ -1,7 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { requireActiveSubscription } from '@/lib/subscription-auth';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const accessError = await requireActiveSubscription(request);
+    if (accessError) return accessError;
+
     // Get all reports from cache
     const reportCache = (global as any).reportCache || new Map();
     
@@ -53,8 +57,11 @@ export async function GET() {
 }
 
 // Delete report
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
   try {
+    const accessError = await requireActiveSubscription(request);
+    if (accessError) return accessError;
+
     const { searchParams } = new URL(request.url);
     const reportId = searchParams.get('id');
     

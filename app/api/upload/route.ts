@@ -4,6 +4,7 @@ import { existsSync } from 'fs';
 import path from 'path';
 import { RevitProcessor } from '@/lib/services/revitProcessor';
 import crypto from 'crypto';
+import { requireActiveSubscription } from '@/lib/subscription-auth';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 7200; // 120 minutes (2 hours)
@@ -12,6 +13,9 @@ const reportCache = new Map<string, unknown>();
 
 export async function POST(request: NextRequest) {
   try {
+    const accessError = await requireActiveSubscription(request);
+    if (accessError) return accessError;
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const clientId = formData.get('clientId') as string;

@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import ExcelJS from 'exceljs';
+import { requireActiveSubscription } from '@/lib/subscription-auth';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const accessError = await requireActiveSubscription(request);
+    if (accessError) return accessError;
+
     const reportId = params.id;
 
     // Get report from cache

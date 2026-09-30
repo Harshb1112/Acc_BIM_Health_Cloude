@@ -60,9 +60,9 @@ export async function POST(request: NextRequest) {
       data: { isVerified: true },
     });
 
-    // Create trial subscription (30 days)
+    // Create the seven-day trial subscription.
     const trialEndDate = new Date();
-    trialEndDate.setDate(trialEndDate.getDate() + parseInt(process.env.TRIAL_PERIOD_DAYS || '30'));
+    trialEndDate.setDate(trialEndDate.getDate() + parseInt(process.env.TRIAL_PERIOD_DAYS || '7', 10));
 
     await prisma.subscription.create({
       data: {

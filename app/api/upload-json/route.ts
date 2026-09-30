@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { requireActiveSubscription } from '@/lib/subscription-auth';
 
 // Helper function to convert PascalCase to camelCase
 const toCamelCase = (obj: any): any => {
@@ -17,6 +18,9 @@ const toCamelCase = (obj: any): any => {
 
 export async function POST(request: NextRequest) {
   try {
+    const accessError = await requireActiveSubscription(request);
+    if (accessError) return accessError;
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
