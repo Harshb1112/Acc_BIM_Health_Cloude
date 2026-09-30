@@ -97,6 +97,21 @@ model Activity {
   @@index([timestamp])
 }
 
+// Report Model (BIM Health Check Reports)
+model Report {
+  id            String   @id // UUID generated on creation
+  userId        Int
+  projectName   String
+  fileName      String
+  reportData    Json     // Complete report JSON
+  overallGrade  String?
+  totalElements Int      @default(0)
+  uploadedAt    DateTime @default(now())
+  
+  @@index([userId])
+  @@index([uploadedAt])
+}
+
 // Subscription Plans (Admin managed)
 model Plan {
   id          Int      @id @default(autoincrement())

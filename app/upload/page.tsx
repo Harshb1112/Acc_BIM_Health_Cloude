@@ -1,5 +1,4 @@
 'use client';
-'use client';
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -7,6 +6,7 @@ import Layout from '@/components/Layout';
 import SubscriptionGuard from '@/components/SubscriptionGuard';
 import { useSubscriptionGuard } from '@/lib/useSubscriptionGuard';
 import { Upload as UploadIcon, FileText, CheckCircle, AlertCircle, X, FileCode, Settings as SettingsIcon, Lock } from 'lucide-react';
+import { uploadFileInChunks, UploadProgress } from '@/lib/chunkedUpload';
 
 export default function UploadPage() {
   const sub    = useSubscriptionGuard();   // ← subscription check
@@ -17,6 +17,7 @@ export default function UploadPage() {
   const [dragActive, setDragActive] = useState(false);
   const [uploadType, setUploadType] = useState<'rvt' | 'json'>('json');
   const [hasCredentials, setHasCredentials] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -84,9 +85,7 @@ export default function UploadPage() {
 
     setUploading(true);
     setError('');
-
-    const formData = new FormData();
-    formData.append('file', file);
+    setUploadProgress(null);
 
     // Add user's Autodesk credentials for RVT files
     if (uploadType === 'rvt') {
@@ -98,9 +97,46 @@ export default function UploadPage() {
         setUploading(false);
         return;
       }
-      
-      formData.append('clientId', clientId);
-      formData.append('clientSecret', clientSecret);
+
+      // Use chunked upload for RVT files > 4MB
+      const FILE_SIZE_THRESHOLD = 4 * 1024 * 1024; // 4MB
+      if (file.size > FILE_SIZE_THRESHOLD) {
+        try {
+          console.log('📦 Using chunked upload for large file...');
+          const { reportId } = await uploadFileInChunks(
+            file,
+            clientId,
+            clientSecret,
+            (progress) => {
+              setUploadProgress(progress);
+              console.log(`Progress: ${progress.percentage}% (${progress.uploadedChunks}/${progress.totalChunks})`);
+            }
+          );
+
+          setSuccess(true);
+          setTimeout(() => {
+            router.push(`/report/${reportId}`);
+          }, 1500);
+          return;
+        } catch (err: any) {
+          setError(err.message || 'Failed to upload file');
+          setUploading(false);
+          return;
+        } finally {
+          setUploading(false);
+        }
+      }
+    }
+
+    // For smaller files or JSON, use direct upload
+    const formData = new FormData();
+    formData.append('file', file);
+
+    if (uploadType === 'rvt') {
+      const clientId = localStorage.getItem('autodesk_client_id');
+      const clientSecret = localStorage.getItem('autodesk_client_secret');
+      formData.append('clientId', clientId!);
+      formData.append('clientSecret', clientSecret!);
     }
 
     try {
@@ -332,7 +368,11 @@ export default function UploadPage() {
                   {uploading ? (
                     <>
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      <span>Uploading...</span>
+                      <span>
+                        {uploadProgress 
+                          ? `Uploading... ${uploadProgress.percentage}%`
+                          : 'Processing...'}
+                      </span>
                     </>
                   ) : (
                     <>
@@ -341,6 +381,21 @@ export default function UploadPage() {
                     </>
                   )}
                 </button>
+                
+                {/* Progress Bar for Chunked Upload */}
+                {uploading && uploadProgress && (
+                  <div className="mt-4">
+                    <div className="bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                      <div 
+                        className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress.percentage}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-sm text-gray-600 text-center mt-2">
+                      Uploading {uploadProgress.uploadedChunks}/{uploadProgress.totalChunks} chunks ({uploadProgress.percentage}%)
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
