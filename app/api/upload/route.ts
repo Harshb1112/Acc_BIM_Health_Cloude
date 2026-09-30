@@ -28,8 +28,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
-    const fileName = file.name.toLowerCase();
-    if (!fileName.endsWith('.rvt')) {
+    const fileName = file.name;
+    if (!fileName.toLowerCase().endsWith('.rvt')) {
       return NextResponse.json(
         { error: 'Invalid file type. Only .rvt files are supported.' },
         { status: 400 }
@@ -56,7 +56,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Save file
-    const fileName = file.name;
     const filePath = path.join(uploadsDir, fileName);
     await writeFile(filePath, buffer);
 
