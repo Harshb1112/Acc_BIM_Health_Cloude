@@ -111,11 +111,19 @@ export default function UploadPage() {
         body: formData,
       });
 
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('❌ Non-JSON response received:', text.substring(0, 200));
+        throw new Error('Server returned an invalid response. Please try again or contact support.');
+      }
+
       const data = await response.json();
       console.log('📊 Upload response:', data);
 
       if (!response.ok) {
-        throw new Error(data.error || 'Upload failed');
+        throw new Error(data.error || data.message || 'Upload failed');
       }
 
       if (!data.reportId) {
