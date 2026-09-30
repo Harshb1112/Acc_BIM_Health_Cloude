@@ -23,8 +23,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create temp directory for chunks
-    const tempDir = path.join(process.cwd(), 'uploads', 'temp', uploadId);
+    // Create temp directory for chunks (use /tmp for serverless)
+    const tempDir = path.join('/tmp', 'uploads', 'temp', uploadId);
     if (!existsSync(tempDir)) {
       await mkdir(tempDir, { recursive: true });
     }

@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
 
     console.log(`📦 Merging ${totalChunks} chunks for ${fileName}...`);
 
-    const tempDir = path.join(process.cwd(), 'uploads', 'temp', uploadId);
-    const finalDir = path.join(process.cwd(), 'uploads', 'RVT');
+    const tempDir = path.join('/tmp', 'uploads', 'temp', uploadId);
+    const finalDir = path.join('/tmp', 'uploads', 'RVT');
     
     if (!existsSync(finalDir)) {
       await mkdir(finalDir, { recursive: true });
