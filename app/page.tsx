@@ -155,7 +155,7 @@ export default function Home() {
           >
             Start Your Free Trial
           </button>
-          <p className="text-blue-300 text-sm">No credit card required • 30 days free trial • Cancel anytime</p>
+          <p className="text-blue-300 text-sm">No credit card required • 7 days free trial • Cancel anytime</p>
         </div>
       </div>
     </div>

@@ -444,7 +444,7 @@ export default function SettingsPage() {
 
                       <div>
                         <h4 className="font-bold text-lg text-gray-900 mb-2">4. Subscription and Payment</h4>
-                        <p className="mb-2"><strong>Free Trial:</strong> New users receive a 30-day free trial with full access to all features.</p>
+                        <p className="mb-2"><strong>Free Trial:</strong> New users receive a 7-day free trial with full access to all features.</p>
                         <p className="mb-2"><strong>Paid Subscriptions:</strong></p>
                         <ul className="list-disc list-inside space-y-1 ml-4">
                           <li>Subscriptions are billed in advance on a monthly or annual basis</li>

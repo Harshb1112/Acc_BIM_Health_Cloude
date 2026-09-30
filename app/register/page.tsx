@@ -14,6 +14,7 @@ export default function RegisterPage() {
     phone: '',
     region: '',
   });
+  const [otherRegion, setOtherRegion] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -142,9 +143,12 @@ export default function RegisterPage() {
                 Region
               </label>
               <select
-                name="region"
-                value={formData.region}
-                onChange={handleChange}
+                value={otherRegion ? 'Other' : formData.region}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setOtherRegion(value === 'Other');
+                  setFormData({ ...formData, region: value === 'Other' ? '' : value });
+                }}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-800"
               >
                 <option value="">Select Region</option>
@@ -155,6 +159,17 @@ export default function RegisterPage() {
                 <option value="Australia">Australia</option>
                 <option value="Other">Other</option>
               </select>
+              {otherRegion && (
+                <input
+                  type="text"
+                  name="region"
+                  value={formData.region}
+                  onChange={handleChange}
+                  required
+                  className="mt-3 w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-800"
+                  placeholder="Enter your region"
+                />
+              )}
             </div>
 
             <button
@@ -186,7 +201,7 @@ export default function RegisterPage() {
 
           <div className="mt-6 p-4 bg-green-50 rounded-xl">
             <p className="text-xs text-green-700 text-center">
-              🎁 Get 30 days free trial after email verification!
+              🎁 Get 7 days free trial after email verification!
             </p>
           </div>
         </div>
