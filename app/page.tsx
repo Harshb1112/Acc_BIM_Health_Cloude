@@ -56,7 +56,7 @@ export default function Home() {
               onClick={() => router.push('/register')}
               className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-105 flex items-center space-x-2"
             >
-              <span>Start Free Trial</span>
+              <span>Start 7-Day Free Trial</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             <button
@@ -153,7 +153,7 @@ export default function Home() {
             onClick={() => router.push('/register')}
             className="px-10 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-lg font-semibold shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-105"
           >
-            Start Your Free Trial
+            Start Your 7-Day Free Trial
           </button>
           <p className="text-blue-300 text-sm">No credit card required • 7 days free trial • Cancel anytime</p>
         </div>
