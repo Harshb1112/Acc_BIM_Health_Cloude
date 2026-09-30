@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   CheckCircle, XCircle, Clock, Eye, RefreshCw,
@@ -47,7 +47,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-export default function AdminPaymentsPage() {
+function AdminPaymentsContent() {
   const searchParams = useSearchParams();
 
   // Auth state
@@ -548,5 +548,13 @@ export default function AdminPaymentsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AdminPaymentsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading payments...</div>}>
+      <AdminPaymentsContent />
+    </Suspense>
   );
 }
