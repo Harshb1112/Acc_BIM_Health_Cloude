@@ -5,6 +5,8 @@ import path from 'path';
 import { RevitProcessor } from '@/lib/services/revitProcessor';
 import crypto from 'crypto';
 import { requireActiveSubscription } from '@/lib/subscription-auth';
+import { verifyToken } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes (Vercel Hobby plan max is 300s)
@@ -23,6 +25,15 @@ export async function POST(request: NextRequest) {
 
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+    }
+
+    // Validate file type
+    const fileName = file.name.toLowerCase();
+    if (!fileName.endsWith('.rvt')) {
+      return NextResponse.json(
+        { error: 'Invalid file type. Only .rvt files are supported.' },
+        { status: 400 }
+      );
     }
 
     if (!clientId || !clientSecret) {
@@ -64,7 +75,6 @@ export async function POST(request: NextRequest) {
 
     // Get user ID from token
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
-    const { verifyToken } = await import('@/lib/auth');
     const payload = token ? verifyToken(token) : null;
 
     if (!payload) {
