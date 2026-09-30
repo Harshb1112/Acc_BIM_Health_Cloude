@@ -8,7 +8,7 @@ import { verifyToken } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 300;
+export const maxDuration = 1800; // 30 minutes for large file processing
 
 // Complete upload and process
 export async function POST(request: NextRequest) {
