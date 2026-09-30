@@ -366,7 +366,7 @@ export default function BillingPage() {
                   <Upload size={22} className="text-blue-600"/> Upload Payment Screenshot
                 </h2>
                 <p className="text-gray-500 text-sm mb-6">
-                  Plan: <strong>{selectedPlanData?.name} — ${selectedPlanData?.price}</strong>
+                  Plan: <strong>{selectedPlanData?.name} &mdash; ${selectedPlanData?.price}</strong>
                 </p>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
