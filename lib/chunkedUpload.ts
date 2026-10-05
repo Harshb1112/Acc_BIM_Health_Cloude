@@ -12,7 +12,7 @@ export async function uploadFileInChunks(
   clientId: string,
   clientSecret: string,
   onProgress?: (progress: UploadProgress) => void
-): Promise<{ reportId: string }> {
+): Promise<{ reportId: string; status?: string }> {
   const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
   const uploadId = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
   
