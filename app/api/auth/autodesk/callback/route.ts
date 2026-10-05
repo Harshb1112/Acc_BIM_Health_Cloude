@@ -15,17 +15,24 @@ export async function GET(request: NextRequest) {
     const state = searchParams.get('state');
     const error = searchParams.get('error');
 
+    // Auto-detect base URL
+    const protocol = request.headers.get('x-forwarded-proto') || 'https';
+    const host = request.headers.get('host') || 'bim-health-report.vercel.app';
+    const baseUrl = `${protocol}://${host}`;
+
+    console.log('🔐 Callback received from:', baseUrl);
+
     // Check for authorization errors
     if (error) {
       console.error('❌ Autodesk authorization error:', error);
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_APP_URL}/settings?error=autodesk_auth_failed&reason=${error}`
+        `${baseUrl}/settings?error=autodesk_auth_failed&reason=${error}`
       );
     }
 
     if (!code || !state) {
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_APP_URL}/settings?error=missing_parameters`
+        `${baseUrl}/settings?error=missing_parameters`
       );
     }
 
@@ -40,12 +47,13 @@ export async function GET(request: NextRequest) {
     // Bimboss APS credentials
     const clientId = process.env.FORGE_CLIENT_ID;
     const clientSecret = process.env.FORGE_CLIENT_SECRET;
-    const callbackUrl = process.env.FORGE_CALLBACK_URL || 
-                       `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/autodesk/callback`;
+    const callbackUrl = process.env.FORGE_CALLBACK_URL || `${baseUrl}/api/auth/autodesk/callback`;
 
     if (!clientId || !clientSecret) {
       throw new Error('Autodesk credentials not configured');
     }
+
+    console.log('🔄 Using callback URL:', callbackUrl);
 
     // Exchange code for access token
     console.log('🔄 Exchanging code for access token...');
@@ -109,14 +117,19 @@ export async function GET(request: NextRequest) {
 
     // Redirect back to settings page with success
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/settings?success=autodesk_connected`
+      `${baseUrl}/settings?success=autodesk_connected`
     );
 
   } catch (error: any) {
     console.error('❌ Callback error:', error.response?.data || error.message);
     
+    // Auto-detect base URL for error redirect
+    const protocol = request.headers.get('x-forwarded-proto') || 'https';
+    const host = request.headers.get('host') || 'bim-health-report.vercel.app';
+    const baseUrl = `${protocol}://${host}`;
+    
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}/settings?error=autodesk_callback_failed&details=${encodeURIComponent(error.message)}`
+      `${baseUrl}/settings?error=autodesk_callback_failed&details=${encodeURIComponent(error.message)}`
     );
   }
 }
