@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
-import { FolderIcon, FileIcon, CloudIcon, RefreshCwIcon, PlayIcon, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { FolderIcon, FileIcon, CloudIcon, RefreshCwIcon, PlayIcon, HelpCircle, ChevronDown, ChevronUp, Key } from 'lucide-react';
 import axios from 'axios';
 
 interface Hub {
@@ -17,6 +17,7 @@ interface Project {
   name: string;
   type: string;
   status: string;
+  region?: string;
 }
 
 interface Folder {
@@ -39,12 +40,13 @@ interface File {
 }
 
 export default function ACCBrowserPage() {
-  const [clientId, setClientId] = useState('');
-  const [clientSecret, setClientSecret] = useState('');
   const [userToken, setUserToken] = useState('');
-  const [, setIsAuthenticated] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const [hubs, setHubs] = useState<Hub[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [allProjects, setAllProjects] = useState<Project[]>([]); // Store all projects
+  const [selectedRegion, setSelectedRegion] = useState<string>('ALL'); // Region filter
   const [folders, setFolders] = useState<Folder[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [rvtFiles, setRvtFiles] = useState<File[]>([]);
@@ -57,142 +59,58 @@ export default function ACCBrowserPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [processing, setProcessing] = useState(false);
-  const [testingForge, setTestingForge] = useState(false);
-  const [forgeTestResult, setForgeTestResult] = useState<any>(null);
-  const [showHelp, setShowHelp] = useState(false);
 
   const API_URL = '/api';
 
-  // Load credentials from localStorage
+  // Load user's Autodesk connection from API
   useEffect(() => {
-    const savedClientId = localStorage.getItem('acc_client_id');
-    const savedClientSecret = localStorage.getItem('acc_client_secret');
-    const savedToken = localStorage.getItem('autodesk_token');
-    
-    if (savedClientId) setClientId(savedClientId);
-    if (savedClientSecret) setClientSecret(savedClientSecret);
-    if (savedToken) {
-      setUserToken(savedToken);
-      setIsAuthenticated(true);
-    }
+    const fetchUserConnection = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          setError('Please log in to your account first');
+          return;
+        }
 
-    // Check for auth success message
+        const response = await fetch('/api/auth/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+          
+          if (data.user.autodeskAccessToken && data.user.autodeskConnectedAt) {
+            setUserToken(data.user.autodeskAccessToken);
+            setIsConnected(true);
+            setSuccess('✅ Connected to Autodesk. You can now browse ACC hubs.');
+            setTimeout(() => setSuccess(''), 3000);
+          } else {
+            setIsConnected(false);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch user connection:', error);
+        setError('Failed to check Autodesk connection status');
+      }
+    };
+
+    fetchUserConnection();
+
+    // Check for auth success message from OAuth callback
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('auth') === 'success') {
-      setSuccess('✅ Successfully logged in with Autodesk! You can now access ACC hubs.');
-      setTimeout(() => setSuccess(''), 5000);
-      // Clean up URL
-      window.history.replaceState({}, '', '/acc');
-    } else if (urlParams.get('error')) {
-      const errorType = urlParams.get('error');
-      if (errorType === 'token_exchange_failed') {
-        setError('Failed to exchange authorization code for access token. Please try logging in again.');
-      } else if (errorType === 'code_expired') {
-        setError('Authorization code expired or was already used. This can happen if the page was refreshed. Please click "Login with Autodesk" again.');
-      } else if (errorType === 'missing_credentials') {
-        setError('Please enter your Client ID and Client Secret before logging in.');
-      } else {
-        setError('Authentication failed. Please try again.');
-      }
-      setTimeout(() => setError(''), 8000);
-      // Clean up URL
-      window.history.replaceState({}, '', '/acc');
+      setSuccess('✅ Successfully connected to Autodesk! Reloading...');
+      setTimeout(() => window.location.reload(), 1500);
     }
   }, []);
 
-  // Save credentials to localStorage
-  const saveCredentials = () => {
-    localStorage.setItem('acc_client_id', clientId);
-    localStorage.setItem('acc_client_secret', clientSecret);
-    setSuccess('Credentials saved!');
-    setTimeout(() => setSuccess(''), 3000);
-  };
-
-  // Test Forge configuration
-  const testForgeConfig = async () => {
-    if (!clientId || !clientSecret) {
-      setError('Please enter Client ID and Client Secret');
-      return;
-    }
-
-    setTestingForge(true);
-    setError('');
-    setForgeTestResult(null);
-    
-    try {
-      const response = await axios.post(`${API_URL}/acc/test-forge`, {
-        clientId,
-        clientSecret
-      });
-      
-      setForgeTestResult(response.data);
-      
-      const allPassed = Object.values(response.data.tests).every((test: any) => test.passed);
-      if (allPassed) {
-        setSuccess('All tests passed! Ready to process files.');
-      } else {
-        setError(response.data.recommendation || 'Some tests failed. Check results below.');
-      }
-    } catch (err: any) {
-      setError(err.response?.data?.details || 'Failed to test Forge configuration');
-    } finally {
-      setTestingForge(false);
-    }
-  };
-
-  // Login with Autodesk
-  const handleLogin = () => {
-    if (!clientId || !clientSecret) {
-      setError('Please enter Client ID and Client Secret first');
-      return;
-    }
-    
-    // Clear any existing tokens to force fresh login
-    localStorage.removeItem('autodesk_token');
-    localStorage.removeItem('autodesk_refresh_token');
-    sessionStorage.clear();
-    
-    // Add state parameter with timestamp
-    const timestamp = Date.now();
-    const state = `login_${timestamp}`;
-    
-    // Redirect to Autodesk OAuth
-    const redirectUri = encodeURIComponent(window.location.origin + '/auth/callback');
-    const scope = encodeURIComponent('data:read data:write data:create bucket:read bucket:create account:read viewables:read');
-    const authUrl = `https://developer.api.autodesk.com/authentication/v2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
-    
-    console.log('🔐 Initiating OAuth flow with state:', state);
-    window.location.href = authUrl;
-  };
-
-  // Logout
-  const handleLogout = () => {
-    localStorage.removeItem('autodesk_token');
-    localStorage.removeItem('autodesk_refresh_token');
-    sessionStorage.clear();
-    setUserToken('');
-    setIsAuthenticated(false);
-    setHubs([]);
-    setProjects([]);
-    setFolders([]);
-    setFiles([]);
-    setRvtFiles([]);
-    setSelectedHub(null);
-    setSelectedProject(null);
-    setSelectedFolder(null);
-    setSuccess('Logged out successfully.');
-    setTimeout(() => setSuccess(''), 3000);
-  };
-
   // Fetch ACC Hubs
   const fetchHubs = async () => {
-    if (!clientId || !clientSecret) {
-      setError('Please enter Client ID and Client Secret');
-      return;
-    }
-
-    if (!userToken) {
-      setError('Please login with Autodesk first to access ACC hubs');
+    if (!isConnected || !userToken) {
+      setError('Please connect your Autodesk account in Settings first');
       return;
     }
 
@@ -202,8 +120,7 @@ export default function ACCBrowserPage() {
       const response = await axios.get(`${API_URL}/acc/hubs`, {
         headers: {
           Authorization: `Bearer ${userToken}`
-        },
-        params: { clientId, clientSecret }
+        }
       });
       setHubs(response.data.data);
       setSuccess(`Found ${response.data.count} hubs`);
@@ -218,6 +135,27 @@ export default function ACCBrowserPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Filter projects by region
+  const filterProjectsByRegion = (region: string) => {
+    setSelectedRegion(region);
+    if (region === 'ALL') {
+      setProjects(allProjects);
+    } else {
+      setProjects(allProjects.filter(project => project.region === region));
+    }
+    // Reset selections when changing region
+    setSelectedProject(null);
+    setFolders([]);
+    setFiles([]);
+    setRvtFiles([]);
+  };
+
+  // Get unique regions from all projects
+  const getAvailableRegions = () => {
+    const regions = new Set(allProjects.map(project => project.region).filter(r => r && r !== 'UNKNOWN'));
+    return Array.from(regions).sort();
   };
 
   // Fetch Projects
@@ -240,10 +178,11 @@ export default function ACCBrowserPage() {
       const response = await axios.get(`${API_URL}/acc/hubs/${hub.id}/projects`, {
         headers: {
           Authorization: `Bearer ${userToken}`
-        },
-        params: { clientId, clientSecret }
+        }
       });
-      setProjects(response.data.data);
+      setAllProjects(response.data.data); // Store all projects
+      setProjects(response.data.data); // Initially show all
+      setSelectedRegion('ALL'); // Reset region filter
       setSuccess(`Found ${response.data.count} projects`);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
@@ -274,8 +213,7 @@ export default function ACCBrowserPage() {
         { 
           headers: {
             Authorization: `Bearer ${userToken}`
-          },
-          params: { clientId, clientSecret } 
+          }
         }
       );
       const topFolders = response.data.data;
@@ -314,8 +252,7 @@ export default function ACCBrowserPage() {
         { 
           headers: {
             Authorization: `Bearer ${userToken}`
-          },
-          params: { clientId, clientSecret } 
+          }
         }
       );
       setFolders(response.data.data.folders);
@@ -349,8 +286,7 @@ export default function ACCBrowserPage() {
         { 
           headers: {
             Authorization: `Bearer ${userToken}`
-          },
-          params: { clientId, clientSecret } 
+          }
         }
       );
       setRvtFiles(response.data.data);
@@ -401,8 +337,6 @@ export default function ACCBrowserPage() {
       const response = await axios.post(
         `${API_URL}/acc/projects/${selectedProject.id}/items/${encodedFileId}/process`,
         { 
-          clientId, 
-          clientSecret,
           fileName: file.name
         },
         { 
@@ -464,269 +398,127 @@ export default function ACCBrowserPage() {
             ACC Project Browser
           </h1>
 
-          {/* Credentials Section */}
+          {/* Connection Status Section */}
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Autodesk Credentials</h2>
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <Key className="w-6 h-6 text-blue-600" />
+              Autodesk Account Connection
+            </h2>
             
-            {/* ACC Permission Warning */}
-            <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4 mb-4">
-              <div className="flex items-start gap-3">
-                <div className="text-yellow-600 text-2xl">⚠️</div>
+            {!isConnected ? (
+              <div className="bg-orange-50 border-2 border-orange-400 rounded-lg p-6">
+                <div className="flex items-start gap-4">
+                  <div className="text-orange-600 text-3xl">🔌</div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-orange-900 text-lg mb-2">Not Connected to Autodesk</h3>
+                    <p className="text-sm text-orange-700 mb-4">
+                      To browse your ACC/BIM 360 projects and files, you need to connect your Autodesk account first.
+                      This is a one-time setup that securely connects your account.
+                    </p>
+                    <a
+                      href="/settings?tab=forge"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-semibold transition"
+                    >
+                      <Key className="w-5 h-5" />
+                      Connect in Settings
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-green-50 border-2 border-green-400 rounded-lg p-6">
+                <div className="flex items-start gap-4">
+                  <div className="text-green-600 text-3xl">✅</div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-green-900 text-lg mb-2">Connected to Autodesk</h3>
+                    <p className="text-sm text-green-700 mb-2">
+                      Your Autodesk account is connected. You can now browse your ACC hubs and projects.
+                    </p>
+                    {user?.autodeskConnectedAt && (
+                      <p className="text-xs text-green-600">
+                        Connected on {new Date(user.autodeskConnectedAt).toLocaleString()}
+                      </p>
+                    )}
+                    <div className="mt-4 flex gap-3">
+                      <button
+                        onClick={fetchHubs}
+                        disabled={loading}
+                        className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-semibold transition"
+                      >
+                        <RefreshCwIcon className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                        Load Hubs
+                      </button>
+                      <a
+                        href="/settings?tab=forge"
+                        className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold transition"
+                      >
+                        Manage Connection
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Help Section - Show if connected but no hubs found */}
+          {isConnected && hubs.length === 0 && !loading && (
+            <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-6 mb-6">
+              <div className="flex items-start gap-4">
+                <HelpCircle className="w-8 h-8 text-blue-600 flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="font-semibold text-yellow-800 mb-1">ACC File Processing Not Available</p>
-                  <p className="text-sm text-yellow-700 mb-2">
-                    Your Autodesk app doesn&apos;t have BIM 360/ACC API permissions. You can browse ACC projects and files, but cannot process them directly.
-                  </p>
-                  <div className="flex gap-2">
-                    <a
-                      href="/upload"
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold"
-                    >
-                      Use Manual Upload Instead
-                    </a>
-                    <a
-                      href="https://aps.autodesk.com/support"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm font-semibold"
-                    >
-                      Request ACC Access
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Client ID
-                </label>
-                <input
-                  type="text"
-                  value={clientId}
-                  onChange={(e) => setClientId(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter your Client ID"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Client Secret
-                </label>
-                <input
-                  type="password"
-                  value={clientSecret}
-                  onChange={(e) => setClientSecret(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter your Client Secret"
-                />
-              </div>
-            </div>
-            <div className="mt-4 flex gap-3 flex-wrap">
-              <button
-                onClick={saveCredentials}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >
-                Save Credentials
-              </button>
-              {!userToken ? (
-                <button
-                  onClick={handleLogin}
-                  className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
-                >
-                  Login with Autodesk
-                </button>
-              ) : (
-                <button
-                  onClick={handleLogout}
-                  className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                >
-                  Logout
-                </button>
-              )}
-              <button
-                onClick={testForgeConfig}
-                disabled={testingForge}
-                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400"
-              >
-                {testingForge ? 'Testing...' : 'Test Configuration'}
-              </button>
-              <button
-                onClick={fetchHubs}
-                disabled={loading}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2"
-              >
-                <RefreshCwIcon className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                Load Hubs
-              </button>
-            </div>
-            {userToken && (
-              <div className="mt-3 text-sm text-green-600 font-medium">
-                ✅ Logged in with Autodesk
-              </div>
-            )}
-          </div>
-
-          {/* Help Section - How to Get Credentials */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <button
-              onClick={() => setShowHelp(!showHelp)}
-              className="w-full flex items-center justify-between text-left"
-            >
-              <div className="flex items-center gap-3">
-                <HelpCircle className="w-6 h-6 text-blue-600" />
-                <h2 className="text-xl font-semibold text-gray-800">How to Get Client ID & Client Secret?</h2>
-              </div>
-              {showHelp ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-            </button>
-
-            {showHelp && (
-              <div className="mt-6 space-y-6">
-                {/* Step 1 */}
-                <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
-                    <h3 className="text-lg font-bold text-gray-900">Create APS Account</h3>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">
-                    Go to <a href="https://aps.autodesk.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-semibold underline">aps.autodesk.com</a> and sign in with your Autodesk account (same as ACC/BIM 360).
-                  </p>
-                </div>
-
-                {/* Step 2 */}
-                <div className="bg-green-50 border-l-4 border-green-600 p-4 rounded-r-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
-                    <h3 className="text-lg font-bold text-gray-900">Create New App</h3>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">
-                    Click <strong>"Create App"</strong> at <a href="https://aps.autodesk.com/myapps" target="_blank" rel="noopener noreferrer" className="text-green-600 font-semibold underline">aps.autodesk.com/myapps</a>
-                  </p>
-                  <ul className="list-disc list-inside text-sm text-gray-700 space-y-1 ml-4">
-                    <li>App Name: <code className="bg-gray-200 px-2 py-0.5 rounded">BIM Health Report Client</code></li>
-                    <li>App Type: <strong>Web App</strong></li>
-                  </ul>
-                </div>
-
-                {/* Step 3 */}
-                <div className="bg-orange-50 border-l-4 border-orange-600 p-4 rounded-r-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
-                    <h3 className="text-lg font-bold text-gray-900">Set Callback URL (CRITICAL!)</h3>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">
-                    In <strong>Callback URL</strong> field, enter EXACTLY:
-                  </p>
-                  <div className="bg-white border border-orange-300 rounded p-3 font-mono text-sm mb-2 flex items-center justify-between">
-                    <code>https://bim-health-report.vercel.app/auth/callback</code>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText('https://bim-health-report.vercel.app/auth/callback');
-                        alert('Copied to clipboard!');
-                      }}
-                      className="ml-2 px-3 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                  <p className="text-xs text-orange-700 font-semibold">
-                    ⚠️ Must match EXACTLY (no trailing slash, HTTPS required)
-                  </p>
-                </div>
-
-                {/* Step 4 */}
-                <div className="bg-purple-50 border-l-4 border-purple-600 p-4 rounded-r-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">4</div>
-                    <h3 className="text-lg font-bold text-gray-900">Enable APIs</h3>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">Check these APIs:</p>
-                  <ul className="list-none text-sm text-gray-700 space-y-1 ml-4">
-                    <li>✅ <strong>Data Management API</strong> (required)</li>
-                    <li>✅ <strong>Model Derivative API</strong> (required)</li>
-                    <li>✅ <strong>Design Automation API</strong> (required)</li>
-                  </ul>
-                </div>
-
-                {/* Step 5 */}
-                <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 rounded-r-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">5</div>
-                    <h3 className="text-lg font-bold text-gray-900">Copy Credentials</h3>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">
-                    After creating the app, copy:
-                  </p>
-                  <ul className="list-disc list-inside text-sm text-gray-700 space-y-1 ml-4">
-                    <li><strong>Client ID</strong> (visible by default)</li>
-                    <li><strong>Client Secret</strong> (click "Show" to reveal)</li>
-                  </ul>
-                  <p className="text-xs text-red-600 font-semibold mt-2">
-                    🔒 Keep Client Secret PRIVATE! Don&apos;t share publicly.
-                  </p>
-                </div>
-
-                {/* Step 6 */}
-                <div className="bg-teal-50 border-l-4 border-teal-600 p-4 rounded-r-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold">6</div>
-                    <h3 className="text-lg font-bold text-gray-900">Use in This App</h3>
-                  </div>
-                  <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1 ml-4">
-                    <li>Paste <strong>Client ID</strong> and <strong>Client Secret</strong> above</li>
-                    <li>Click <strong>"Save Credentials"</strong></li>
-                    <li>Click <strong>"Login with Autodesk"</strong></li>
-                    <li>Grant access when prompted</li>
-                    <li>Click <strong>"Load Hubs"</strong> to browse ACC projects</li>
-                  </ol>
-                </div>
-
-                {/* Troubleshooting */}
-                <div className="bg-gray-50 border border-gray-300 rounded-lg p-4">
-                  <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
-                    <span className="text-red-600">🔧</span> Common Errors
+                  <h3 className="font-semibold text-blue-900 text-lg mb-3">
+                    Connected but seeing "0 hubs found"?
                   </h3>
-                  <div className="space-y-2 text-sm text-gray-700">
+                  
+                  <div className="space-y-4 text-sm text-blue-800">
                     <div>
-                      <p className="font-semibold text-red-600">Error: "Request error" during login</p>
-                      <p className="ml-4">→ Check Callback URL is set correctly in APS app</p>
+                      <p className="font-semibold mb-2">Your account is connected successfully, but hub access depends on your Autodesk account type:</p>
                     </div>
-                    <div>
-                      <p className="font-semibold text-red-600">Error: "Authentication failed"</p>
-                      <p className="ml-4">→ Verify Client ID and Secret are correct (no extra spaces)</p>
+                    
+                    <div className="bg-white rounded-lg p-4 space-y-3">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-green-600 font-bold">✓</span>
+                          <span className="font-semibold text-gray-900">Personal Autodesk Accounts</span>
+                        </div>
+                        <p className="text-gray-700 ml-6">
+                          Personal hubs (like those created with Gmail or personal email accounts) work immediately through the API.
+                          If you can access projects in your personal Autodesk account, they will appear here.
+                          Once you load projects, you can filter them by region (EU, US, etc.).
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-orange-600 font-bold">⚠</span>
+                          <span className="font-semibold text-gray-900">Business/Enterprise Accounts</span>
+                        </div>
+                        <p className="text-gray-700 ml-6">
+                          Business hubs (company ACC/BIM 360 accounts) may require additional API permissions beyond your account&apos;s 
+                          web interface access. Even if you have Hub Admin or Project Admin roles, API access is controlled separately.
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold text-red-600">Error: "Missing authorization header"</p>
-                      <p className="ml-4">→ Click "Login with Autodesk" first, then "Load Hubs"</p>
+                    
+                    <div className="bg-blue-100 rounded-lg p-4">
+                      <p className="font-semibold mb-2">What you can try:</p>
+                      <ul className="list-disc list-inside space-y-1 ml-2">
+                        <li>Verify you can access projects in the <a href="https://acc.autodesk.com" target="_blank" rel="noopener noreferrer" className="underline font-semibold">ACC web interface</a></li>
+                        <li>If you have personal projects, try signing in with that personal Autodesk account instead</li>
+                        <li>For business accounts, contact your BIM 360/ACC administrator to verify API access permissions</li>
+                        <li>Alternatively, you can always <a href="/upload" className="underline font-semibold">upload Revit files directly</a> without needing ACC browser access</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="text-xs text-blue-600 mt-3">
+                      <strong>Note:</strong> The OAuth connection shows you&apos;re authenticated with Autodesk successfully. 
+                      Hub visibility is determined by your account&apos;s specific API permissions within Autodesk&apos;s system.
+                      Regions (EU, US, etc.) are available at the project level once you select a hub.
                     </div>
                   </div>
                 </div>
               </div>
-            )}
-          </div>
-
-          {/* Forge Test Results */}
-          {forgeTestResult && (
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-4">Configuration Test Results</h2>
-              <div className="space-y-3">
-                {Object.entries(forgeTestResult.tests).map(([key, test]: [string, any]) => (
-                  <div key={key} className={`p-4 rounded-lg border-2 ${test.passed ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}`}>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">{test.passed ? '✅' : '❌'}</span>
-                      <span className="font-semibold capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                    </div>
-                    <p className="text-sm text-gray-700 ml-7">{test.message}</p>
-                  </div>
-                ))}
-              </div>
-              {forgeTestResult.recommendation && (
-                <div className="mt-4 p-4 bg-blue-50 border-2 border-blue-500 rounded-lg">
-                  <p className="font-semibold text-blue-900">Recommendation:</p>
-                  <p className="text-blue-800">{forgeTestResult.recommendation}</p>
-                </div>
-              )}
             </div>
           )}
 
@@ -781,10 +573,37 @@ export default function ACCBrowserPage() {
 
             {/* Projects */}
             <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <FolderIcon className="w-5 h-5" />
-                Projects ({projects.length})
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <FolderIcon className="w-5 h-5" />
+                  Projects ({projects.length})
+                </h3>
+              </div>
+              
+              {/* Region Filter */}
+              {allProjects.length > 0 && getAvailableRegions().length > 0 && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Filter by Region:
+                  </label>
+                  <select
+                    value={selectedRegion}
+                    onChange={(e) => filterProjectsByRegion(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
+                  >
+                    <option value="ALL">All Regions ({allProjects.length})</option>
+                    {getAvailableRegions().map(region => {
+                      const count = allProjects.filter(p => p.region === region).length;
+                      return (
+                        <option key={region} value={region}>
+                          {region} ({count})
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              )}
+              
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {projects.map((project) => (
                   <button
@@ -797,9 +616,27 @@ export default function ACCBrowserPage() {
                     }`}
                   >
                     <div className="font-medium">{project.name}</div>
-                    <div className="text-xs text-gray-500">{project.status}</div>
+                    <div className="text-xs text-gray-500 flex items-center justify-between">
+                      <span>{project.status}</span>
+                      {project.region && project.region !== 'UNKNOWN' && (
+                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
+                          {project.region}
+                        </span>
+                      )}
+                    </div>
                   </button>
                 ))}
+                {projects.length === 0 && allProjects.length > 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    <p className="text-sm">No projects in {selectedRegion} region</p>
+                    <button
+                      onClick={() => filterProjectsByRegion('ALL')}
+                      className="mt-2 text-blue-600 text-sm hover:underline"
+                    >
+                      Show all regions
+                    </button>
+                  </div>
+                )}
               </div>
               {selectedProject && (
                 <button

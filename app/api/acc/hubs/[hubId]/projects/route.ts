@@ -30,12 +30,29 @@ export async function GET(
       }
     );
 
-    const projects = response.data.data.map((project: any) => ({
-      id: project.id,
-      name: project.attributes.name,
-      type: project.type,
-      status: project.attributes.extension?.data?.projectStatus || 'active'
-    }));
+    console.log('📊 Projects API - Total projects:', response.data.data.length);
+    
+    // Log first project structure to understand the data
+    if (response.data.data.length > 0) {
+      console.log('📋 Sample project structure:', JSON.stringify(response.data.data[0], null, 2));
+    }
+
+    const projects = response.data.data.map((project: any) => {
+      // Extract region from project extension data
+      const region = project.attributes.extension?.data?.region || 
+                     project.attributes.extension?.data?.regionId || 
+                     'UNKNOWN';
+      
+      console.log(`Project: ${project.attributes.name} | Region: ${region}`);
+      
+      return {
+        id: project.id,
+        name: project.attributes.name,
+        type: project.type,
+        status: project.attributes.extension?.data?.projectStatus || 'active',
+        region: region
+      };
+    });
 
     return NextResponse.json({
       success: true,

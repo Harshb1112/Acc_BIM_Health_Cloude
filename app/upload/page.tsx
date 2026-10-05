@@ -64,16 +64,19 @@ export default function UploadPage() {
       const selectedFile = e.target.files[0];
       const fileName = selectedFile.name.toLowerCase();
       
-      if (uploadType === 'rvt' && fileName.endsWith('.rvt')) {
-        setFile(selectedFile);
-        setError('');
-      } else if (uploadType === 'json' && fileName.endsWith('.json')) {
-        setFile(selectedFile);
-        setError('');
-      } else {
-        const fileTypeLabel = uploadType === 'rvt' ? 'Revit (.rvt)' : 'JSON (.json)';
-        setError(`Please upload a ${fileTypeLabel} file`);
+      if (uploadType === 'rvt' && !fileName.endsWith('.rvt')) {
+        setError('❌ Invalid file type. Please upload a Revit (.rvt) file only.');
+        setFile(null);
+        return;
+      } else if (uploadType === 'json' && !fileName.endsWith('.json')) {
+        setError('❌ Invalid file type. Please upload a JSON (.json) file only.');
+        setFile(null);
+        return;
       }
+      
+      // File is valid
+      setFile(selectedFile);
+      setError('');
     }
   };
 

@@ -23,6 +23,13 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
+  // Autodesk OAuth (3-legged authentication)
+  autodeskUserId      String?   // Autodesk user ID
+  autodeskAccessToken String?   @db.Text // User's Autodesk access token
+  autodeskRefreshToken String?  @db.Text // Refresh token
+  autodeskTokenExpiry DateTime? // When token expires
+  autodeskConnectedAt DateTime? // When user connected their Autodesk account
+  
   // Relations
   otps          OTP[]
   subscriptions Subscription[]
@@ -31,6 +38,7 @@ model User {
   paymentRequests PaymentRequest[]
   
   @@index([email])
+  @@index([autodeskUserId])
 }
 
 // OTP Verification Model

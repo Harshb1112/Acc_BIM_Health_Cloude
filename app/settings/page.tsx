@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Layout from '@/components/Layout';
-import { User, Shield, Key, Trash2, LogOut, Save, Eye, EyeOff, Camera } from 'lucide-react';
+import { User, Shield, Key, Trash2, LogOut, Save, Eye, EyeOff, Camera, X } from 'lucide-react';
 
 type TabType = 'profile' | 'privacy' | 'forge' | 'account';
 
@@ -30,18 +30,44 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      setUser(parsedUser);
-      setProfileData({
-        name: parsedUser.name || '',
-        email: parsedUser.email || '',
-        phone: parsedUser.phone || '',
-        region: parsedUser.region || '',
-        profileImage: parsedUser.profileImage || ''
-      });
-    }
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          router.push('/login');
+          return;
+        }
+
+        // Fetch fresh user data from API
+        const response = await fetch('/api/auth/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+          setProfileData({
+            name: data.user.name || '',
+            email: data.user.email || '',
+            phone: data.user.phone || '',
+            region: data.user.region || '',
+            profileImage: data.user.profileImage || ''
+          });
+          
+          // Update localStorage with fresh data
+          localStorage.setItem('user', JSON.stringify(data.user));
+        } else if (response.status === 401) {
+          localStorage.clear();
+          router.push('/login');
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      }
+    };
+
+    fetchUserData();
 
     // Load Forge credentials from localStorage
     const clientId = localStorage.getItem('autodesk_client_id');
@@ -52,7 +78,7 @@ export default function SettingsPage() {
         clientSecret: clientSecret || ''
       });
     }
-  }, []);
+  }, [router]);
 
   const handleProfileUpdate = async () => {
     setLoading(true);
@@ -569,66 +595,141 @@ export default function SettingsPage() {
             {activeTab === 'forge' && (
               <div className="animate-fade-in">
               <div className="max-w-2xl">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Autodesk Forge Credentials</h2>
-                <p className="text-gray-600 mb-6">
-                  Configure your Autodesk Forge API credentials for RVT file processing.
-                </p>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">🔗 Autodesk Account Connection</h2>
+                
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6 mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Why Connect Your Autodesk Account?</h3>
+                  <ul className="text-sm text-gray-700 space-y-2 ml-4 list-disc">
+                    <li>Access your ACC/BIM 360 projects and files directly</li>
+                    <li>Process Revit files stored in your Autodesk cloud</li>
+                    <li>Secure OAuth authentication - we never see your password</li>
+                    <li>Automatic token refresh - stay connected seamlessly</li>
+                  </ul>
+                </div>
 
+                {/* Connection Status */}
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Client ID
-                    </label>
-                    <input
-                      type="text"
-                      value={forgeData.clientId}
-                      onChange={(e) => setForgeData({ ...forgeData, clientId: e.target.value })}
-                      placeholder="Enter your Forge Client ID"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
-                    />
-                  </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">Connection Status</h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {user?.autodeskConnectedAt 
+                            ? 'Your Autodesk account is connected' 
+                            : 'Not connected to Autodesk'}
+                        </p>
+                      </div>
+                      <div>
+                        {user?.autodeskConnectedAt ? (
+                          <div className="flex items-center space-x-2 bg-green-100 text-green-800 px-4 py-2 rounded-full">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <span className="text-sm font-medium">Connected</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2 bg-gray-100 text-gray-600 px-4 py-2 rounded-full">
+                            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                            <span className="text-sm font-medium">Not Connected</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Client Secret
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showForgeSecret ? 'text' : 'password'}
-                        value={forgeData.clientSecret}
-                        onChange={(e) => setForgeData({ ...forgeData, clientSecret: e.target.value })}
-                        placeholder="Enter your Forge Client Secret"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm pr-12"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowForgeSecret(!showForgeSecret)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                      >
-                        {showForgeSecret ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
+                    {user?.autodeskConnectedAt && (
+                      <div className="text-xs text-gray-500 bg-gray-50 rounded-lg p-3 mb-4">
+                        <p><strong>Connected At:</strong> {new Date(user.autodeskConnectedAt).toLocaleString()}</p>
+                        {user?.autodeskTokenExpiry && (
+                          <p className="mt-1"><strong>Token Valid Until:</strong> {new Date(user.autodeskTokenExpiry).toLocaleString()}</p>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="flex space-x-3">
+                      {!user?.autodeskConnectedAt ? (
+                        <form 
+                          method="GET" 
+                          action="/api/auth/autodesk/connect"
+                          onSubmit={(e) => {
+                            // Set token in cookie before redirect
+                            const token = localStorage.getItem('accessToken');
+                            if (!token) {
+                              e.preventDefault();
+                              alert('Please login first');
+                              router.push('/login');
+                              return;
+                            }
+                            // Set cookie for the API route
+                            document.cookie = `accessToken=${token}; path=/; max-age=600; SameSite=Lax`;
+                          }}
+                        >
+                          <button
+                            type="submit"
+                            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition shadow-lg"
+                          >
+                            <Key className="w-5 h-5" />
+                            <span>Connect Autodesk Account</span>
+                          </button>
+                        </form>
+                      ) : (
+                        <button
+                          onClick={async () => {
+                            if (!confirm('Are you sure you want to disconnect your Autodesk account?')) return;
+                            
+                            try {
+                              const token = localStorage.getItem('accessToken');
+                              const response = await fetch('/api/auth/autodesk/disconnect', {
+                                method: 'POST',
+                                headers: { 'Authorization': `Bearer ${token}` }
+                              });
+
+                              if (response.ok) {
+                                alert('✅ Autodesk account disconnected successfully!');
+                                window.location.reload();
+                              } else {
+                                alert('Failed to disconnect. Please try again.');
+                              }
+                            } catch (error) {
+                              alert('Error disconnecting account');
+                            }
+                          }}
+                          className="flex items-center space-x-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                        >
+                          <X className="w-5 h-5" />
+                          <span>Disconnect Account</span>
+                        </button>
+                      )}
                     </div>
                   </div>
 
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="text-sm text-blue-800">
-                      <strong>ℹ️ How to get Forge credentials:</strong>
-                    </p>
-                    <ol className="text-sm text-blue-700 mt-2 ml-4 list-decimal space-y-1">
-                      <li>Visit <a href="https://forge.autodesk.com" target="_blank" rel="noopener noreferrer" className="underline">forge.autodesk.com</a></li>
-                      <li>Sign in with your Autodesk account</li>
-                      <li>Create a new app or use existing one</li>
-                      <li>Copy Client ID and Client Secret</li>
-                    </ol>
+                  {/* What Happens Section */}
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">🔐 Security & Privacy</h3>
+                    <div className="space-y-3 text-sm text-gray-700">
+                      <div className="flex items-start">
+                        <div className="text-green-600 mt-1 mr-3">✓</div>
+                        <div>
+                          <strong>Secure OAuth 2.0:</strong> Industry-standard authentication protocol
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <div className="text-green-600 mt-1 mr-3">✓</div>
+                        <div>
+                          <strong>No Password Storage:</strong> We never see or store your Autodesk password
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <div className="text-green-600 mt-1 mr-3">✓</div>
+                        <div>
+                          <strong>Limited Permissions:</strong> We only request access to read/write files
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <div className="text-green-600 mt-1 mr-3">✓</div>
+                        <div>
+                          <strong>Revocable Access:</strong> You can disconnect anytime
+                        </div>
+                      </div>
+                    </div>
                   </div>
-
-                  <button
-                    onClick={handleForgeUpdate}
-                    className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                  >
-                    <Save className="w-5 h-5" />
-                    <span>Save Credentials</span>
-                  </button>
                 </div>
               </div>
               </div>

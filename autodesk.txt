@@ -142,14 +142,14 @@ ALTERNATIVE: MANUAL UPLOAD
 ───────────────────────────────────────────────────────────────────────────────
 For technical support, questions, or feedback, please contact us via email:
 
-<b>Email:</b> support@bimhealthreport.com
+Email: psoni@bimboss.com & drashti.barot@krishnaos.com
 
 Support is available Monday to Friday, 9:00 AM – 6:00 PM IST (UTC+5:30).
 
 We aim to respond to all queries within 1 business day.
 
 For common issues and FAQs, visit our documentation page at:
-<a href="https://bim-health-report.vercel.app">https://bim-health-report.vercel.app</a>
+https://bim-health-report.vercel.app
 
 When contacting support, please include:
 • Your registered email address
@@ -163,30 +163,30 @@ For billing and subscription inquiries, include your account email and plan deta
 ───────────────────────────────────────────────────────────────────────────────
 11. ADDITIONAL INFORMATION (2000 chars max)
 ───────────────────────────────────────────────────────────────────────────────
-<b>TECHNICAL STACK</b>
+TECHNICAL STACK
 • Built with Next.js 14 (App Router) and TypeScript
 • Autodesk Platform Services: Data Management API, Design Automation API, Model Derivative API
 • Database: PostgreSQL via Prisma ORM
 • Hosted on Vercel
 
-<b>APS PERMISSIONS REQUIRED</b>
+APS PERMISSIONS REQUIRED
 Your APS application must have the following OAuth scopes enabled:
   data:read   – to access ACC files
   data:write  – to store output reports
   code:all    – for Design Automation workitems
   bucket:create, bucket:read – for OSS output storage
 
-<b>REVIT VERSION SUPPORT</b>
+REVIT VERSION SUPPORT
 The app automatically detects the Revit version of your file and runs it through the correct Design Automation engine. Supported versions: Revit 2023, 2024, 2025, 2026, 2027.
 
-<b>SUBSCRIPTION PLANS</b>
+SUBSCRIPTION PLANS
 • 7-Day Free Trial – Full feature access, no credit card required
 • Paid Plans – Available after trial; manage via the Billing dashboard inside the app
 
-<b>DATA PRIVACY</b>
+DATA PRIVACY
 Revit files are processed transiently via Autodesk Design Automation. Output reports are stored in your account only. No model geometry or proprietary data is retained on our servers beyond the report JSON.
 
-<b>KNOWN LIMITATIONS</b>
+KNOWN LIMITATIONS
 • Processing time depends on Revit model complexity (typically 1–5 minutes)
 • Very large models (>500 MB) may approach the processing time limit
 • ACC file access requires proper APS app permissions (data:read scope)

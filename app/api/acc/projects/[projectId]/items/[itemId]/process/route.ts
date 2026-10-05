@@ -22,12 +22,16 @@ export async function POST(
 
     const token = authHeader.replace('Bearer ', '');
     const { projectId, itemId } = params;
-    const { clientId, clientSecret, fileName } = await request.json();
+    const { fileName } = await request.json();
+
+    // Use Bimboss app credentials from environment
+    const clientId = process.env.FORGE_CLIENT_ID;
+    const clientSecret = process.env.FORGE_CLIENT_SECRET;
 
     if (!clientId || !clientSecret) {
       return NextResponse.json(
-        { error: 'Missing clientId or clientSecret' },
-        { status: 400 }
+        { error: 'Forge credentials not configured on server' },
+        { status: 500 }
       );
     }
 

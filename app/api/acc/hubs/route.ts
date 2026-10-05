@@ -16,6 +16,8 @@ export async function GET(request: NextRequest) {
 
     const token = authHeader.replace('Bearer ', '');
 
+    console.log('🔍 Fetching hubs from Autodesk...');
+
     // Fetch hubs from Autodesk
     const response = await axios.get('https://developer.api.autodesk.com/project/v1/hubs', {
       headers: {
@@ -23,12 +25,33 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const hubs = response.data.data.map((hub: any) => ({
-      id: hub.id,
-      name: hub.attributes.name,
-      type: hub.type,
-      region: hub.attributes.region || 'US'
-    }));
+    console.log('📊 Raw Autodesk response - Total hubs:', response.data.data.length);
+    
+    // Log first hub's full structure to understand the data
+    if (response.data.data.length > 0) {
+      console.log('📋 Sample hub structure:', JSON.stringify(response.data.data[0], null, 2));
+    }
+
+    const hubs = response.data.data.map((hub: any) => {
+      // Extract region from hub.attributes.region or hub.id
+      let region = hub.attributes.region || 'UNKNOWN';
+      
+      // If region is not set, try to extract from extension.data.region
+      if (hub.attributes.extension?.data?.region) {
+        region = hub.attributes.extension.data.region;
+      }
+      
+      console.log(`Hub: ${hub.attributes.name} | Region from API: ${hub.attributes.region} | Using: ${region}`);
+      
+      return {
+        id: hub.id,
+        name: hub.attributes.name,
+        type: hub.type,
+        region: region
+      };
+    });
+
+    console.log(`✅ Found ${hubs.length} hubs:`, hubs.map((h: any) => h.name).join(', '));
 
     return NextResponse.json({
       success: true,
