@@ -9,7 +9,7 @@ import { verifyToken } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 1800; // 30 minutes (changed from 5 minutes to support large files)
+export const maxDuration = 10; // 10 seconds - Vercel Hobby limit
 
 const reportCache = new Map<string, unknown>();
 

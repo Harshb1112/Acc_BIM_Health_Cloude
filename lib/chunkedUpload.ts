@@ -57,8 +57,8 @@ export async function uploadFileInChunks(
     console.log(`✅ Uploaded chunk ${chunkIndex + 1}/${totalChunks}`);
   }
 
-  // Complete upload
-  console.log(`🔧 Completing upload and processing...`);
+  // Complete upload (triggers background processing)
+  console.log(`🔧 Completing upload and triggering background processing...`);
   const token = localStorage.getItem('accessToken');
   const completeResponse = await fetch('/api/upload-complete', {
     method: 'POST',
@@ -82,6 +82,10 @@ export async function uploadFileInChunks(
 
   const result = await completeResponse.json();
   console.log(`✅ Upload complete! Report ID: ${result.reportId}`);
+  console.log(`⏳ Status: ${result.status} - Processing in background...`);
   
-  return { reportId: result.reportId };
+  return { 
+    reportId: result.reportId,
+    status: result.status // 'processing'
+  };
 }
