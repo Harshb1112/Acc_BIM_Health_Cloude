@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
-import { FolderIcon, FileIcon, CloudIcon, RefreshCwIcon, PlayIcon, HelpCircle, ChevronDown, ChevronUp, Key } from 'lucide-react';
+import { FolderIcon, FileIcon, CloudIcon, RefreshCwIcon, PlayIcon, ChevronDown, ChevronUp, Key } from 'lucide-react';
 import axios from 'axios';
 
 interface Hub {
@@ -460,67 +460,6 @@ export default function ACCBrowserPage() {
               </div>
             )}
           </div>
-
-          {/* Help Section - Show if connected but no hubs found */}
-          {isConnected && hubs.length === 0 && !loading && (
-            <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-6 mb-6">
-              <div className="flex items-start gap-4">
-                <HelpCircle className="w-8 h-8 text-blue-600 flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-blue-900 text-lg mb-3">
-                    Connected but seeing "0 hubs found"?
-                  </h3>
-                  
-                  <div className="space-y-4 text-sm text-blue-800">
-                    <div>
-                      <p className="font-semibold mb-2">Your account is connected successfully, but hub access depends on your Autodesk account type:</p>
-                    </div>
-                    
-                    <div className="bg-white rounded-lg p-4 space-y-3">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-green-600 font-bold">✓</span>
-                          <span className="font-semibold text-gray-900">Personal Autodesk Accounts</span>
-                        </div>
-                        <p className="text-gray-700 ml-6">
-                          Personal hubs (like those created with Gmail or personal email accounts) work immediately through the API.
-                          If you can access projects in your personal Autodesk account, they will appear here.
-                          Once you load projects, you can filter them by region (EU, US, etc.).
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-orange-600 font-bold">⚠</span>
-                          <span className="font-semibold text-gray-900">Business/Enterprise Accounts</span>
-                        </div>
-                        <p className="text-gray-700 ml-6">
-                          Business hubs (company ACC/BIM 360 accounts) may require additional API permissions beyond your account&apos;s 
-                          web interface access. Even if you have Hub Admin or Project Admin roles, API access is controlled separately.
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-blue-100 rounded-lg p-4">
-                      <p className="font-semibold mb-2">What you can try:</p>
-                      <ul className="list-disc list-inside space-y-1 ml-2">
-                        <li>Verify you can access projects in the <a href="https://acc.autodesk.com" target="_blank" rel="noopener noreferrer" className="underline font-semibold">ACC web interface</a></li>
-                        <li>If you have personal projects, try signing in with that personal Autodesk account instead</li>
-                        <li>For business accounts, contact your BIM 360/ACC administrator to verify API access permissions</li>
-                        <li>Alternatively, you can always <a href="/upload" className="underline font-semibold">upload Revit files directly</a> without needing ACC browser access</li>
-                      </ul>
-                    </div>
-                    
-                    <div className="text-xs text-blue-600 mt-3">
-                      <strong>Note:</strong> The OAuth connection shows you&apos;re authenticated with Autodesk successfully. 
-                      Hub visibility is determined by your account&apos;s specific API permissions within Autodesk&apos;s system.
-                      Regions (EU, US, etc.) are available at the project level once you select a hub.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Messages */}
           {error && (
