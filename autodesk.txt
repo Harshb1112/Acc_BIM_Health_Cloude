@@ -19,64 +19,33 @@ Analyze Revit models stored in Autodesk Construction Cloud. Get instant health r
 ───────────────────────────────────────────────────────────────────────────────
 3. APP DESCRIPTION (4000 chars max)
 ───────────────────────────────────────────────────────────────────────────────
-BIM Health Report is a cloud-based analysis tool for AEC professionals that connects directly to Autodesk Construction Cloud (ACC) to process Revit (.rvt) files and generate comprehensive health reports — without leaving your browser.
+BIM Health Report is a cloud-based tool for AEC professionals to analyze Revit (.rvt) models and generate health reports using Autodesk Platform Services (APS) Design Automation.
 
-WHAT IT DOES
-──────────────
-BIM Health Report uses Autodesk Platform Services (APS) Design Automation to process your Revit models server-side. Once processing is complete, it delivers a structured health report covering:
-
-• Element Statistics – Walls, floors, ceilings, doors, windows, columns, beams, rooms, and more
-• Quality Metrics – Model completeness, geometric accuracy, and information richness scores
-• Overall Grade – A/B/C/D grading system for quick model quality assessment
-• Issue Detection – Warnings and errors flagged inside the Revit model
-• Performance Analysis – Performance rating and optimization insights
-• Project Data – Workset count, design options, Revit links, and CAD links
+REPORTS INCLUDE
+• Element counts for walls, floors, doors, windows, rooms, and other categories
+• Model completeness, geometric accuracy, information quality, and an overall A/B/C/D grade
+• Revit warnings, errors, performance insights, worksets, design options, and linked files
 
 HOW IT WORKS
-─────────────
-1. Connect your Autodesk credentials (Client ID + Client Secret) inside the app
-2. In Settings, select "Connect Autodesk" and authorize the app using 3-legged OAuth
-3. Browse your ACC hubs → projects → folders to locate your Revit file
-4. Click "Process" on any .rvt file — the app uses Design Automation to analyze it
-5. Download the JSON report or view the interactive dashboard instantly
+1. Connect your Autodesk account in Settings.
+2. Browse your Autodesk Forma hubs, projects, and folders to select a Revit model.
+3. Select Process to analyze the model with Autodesk Design Automation.
+4. View the report in the dashboard or download it as JSON. Reports are saved in your history.
 
-AUTHENTICATION AND DATA ACCESS
-──────────────────────────────
-The app uses both Autodesk OAuth flows for separate purposes:
-• 3-legged OAuth is initiated when the user connects Autodesk in Settings. The user's consented token is used to list their ACC hubs, projects, folders, and files; browsing is read-only and reflects the user's Autodesk permissions.
-• 2-legged OAuth (client credentials) is used server-side only when processing a Revit file. It authenticates the app to Autodesk Design Automation and OSS for temporary input/output storage. It is not used to browse or select the user's ACC projects.
-• The 3-legged consent requests data:read for ACC browsing and user-profile:read for the user profile lookup after authorization.
-• The server-side 2-legged token requests data:read, data:write, data:create, bucket:read, bucket:create, and code:all for OSS storage and Design Automation processing.
+AUTHENTICATION AND PERMISSIONS
+The app uses both OAuth flows for different stages:
+• 3-legged OAuth starts when a user connects Autodesk in Settings. The user's consented token is used to read that user's Autodesk Forma hubs, projects, folders, and files, subject to their Autodesk permissions. This is the only flow used to browse and select projects.
+• The consent screen's Identity permission corresponds to user-profile:read (read the Autodesk profile); Data corresponds to data:read (read the user's project data). These are two permission categories within the same 3-legged flow, not separate authentication flows.
+• 2-legged OAuth (client credentials) is used server-side after a Revit file is selected, to authenticate the app for Design Automation and temporary OSS input/output storage. It is not used to browse the user's projects. Its scopes are data:read, data:write, data:create, bucket:read, bucket:create, and code:all.
 
-KEY FEATURES
-─────────────
-▸ Direct ACC Integration – Browse hubs, projects, and folder structures natively
-▸ Automatic Revit Version Detection – Supports Revit 2023, 2024, 2025, 2026, and 2027
-▸ Interactive Dashboard – Charts, radar graphs, and sortable tables for all reports
-▸ Report History – All generated reports are saved and accessible anytime
-▸ Export Options – Download reports as JSON for further processing
-▸ Manual Upload – Also supports direct .rvt or JSON file uploads (no ACC required)
-▸ Subscription Plans – 7-day free trial with no credit card required
+FEATURES AND REQUIREMENTS
+• Automatic Revit version detection for Revit 2023–2027
+• Interactive charts, sortable report data, JSON export, and report history
+• Manual upload of Revit or BIM Health JSON files without Autodesk project browsing
+• Requires an Autodesk account with access to the project and an APS app configured for the scopes above
+• Includes a 7-day free trial; subscription plans are available in the app
 
-WHO IS IT FOR
-──────────────
-• BIM Managers who need to audit model quality across multiple projects
-• Architects and engineers who want fast feedback on their Revit models
-• Project managers tracking BIM standards compliance across a team
-• Firms running quality control workflows before milestone submissions
-
-SUPPORTED FILE TYPES
-─────────────────────
-• Revit files (.rvt) — processed via Autodesk Design Automation
-• BIM Health JSON reports — for upload and re-analysis
-
-REQUIREMENTS
-─────────────
-• An active Autodesk account with access to ACC/BIM 360
-• An APS (Autodesk Platform Services) app with Client ID and Client Secret
-• APS OAuth access for ACC browsing (3-legged) and Revit processing (2-legged); required scopes are listed in Additional Information
-
-(~2800 characters)
+Designed for BIM managers, architects, engineers, and project teams performing model quality checks before delivery.
 
 
 ───────────────────────────────────────────────────────────────────────────────
@@ -180,8 +149,8 @@ TECHNICAL STACK
 APS PERMISSIONS REQUIRED
 The app uses separate scopes for user-authorized ACC browsing and app-authorized processing:
    3-legged OAuth (user connects in Settings):
-      data:read          – read the user's ACC hubs, projects, folders, and files
-      user-profile:read  – read the Autodesk profile in the OAuth callback
+   user-profile:read  – Identity: read the Autodesk profile in the OAuth callback
+   data:read          – Data: read the user's ACC hubs, projects, folders, and files
 
    2-legged OAuth (server-side Revit processing only):
       data:read, data:write, data:create – access and transfer temporary processing files
