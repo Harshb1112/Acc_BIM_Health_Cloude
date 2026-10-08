@@ -31,7 +31,7 @@ interface PaymentRequest {
 const FEATURES = [
   'Unlimited BIM health reports',
   'Advanced analytics & charts',
-  'ACC / BIM 360 cloud integration',
+  'Autodesk Forma cloud integration',
   'Export PDF, Excel & JSON',
   'Priority email support',
   'Revit 2023 – 2027 support',

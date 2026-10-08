@@ -85,7 +85,7 @@ export default function ACCBrowserPage() {
           if (data.user.autodeskAccessToken && data.user.autodeskConnectedAt) {
             setUserToken(data.user.autodeskAccessToken);
             setIsConnected(true);
-            setSuccess('✅ Connected to Autodesk. You can now browse ACC hubs.');
+            setSuccess('✅ Connected to Autodesk. You can now browse Autodesk Forma hubs.');
             setTimeout(() => setSuccess(''), 3000);
           } else {
             setIsConnected(false);
@@ -107,7 +107,7 @@ export default function ACCBrowserPage() {
     }
   }, []);
 
-  // Fetch ACC Hubs
+  // Fetch Autodesk Forma hubs
   const fetchHubs = async () => {
     if (!isConnected || !userToken) {
       setError('Please connect your Autodesk account in Settings first');
@@ -303,7 +303,7 @@ export default function ACCBrowserPage() {
     if (!selectedProject) return;
     
     if (!userToken) {
-      setError('Please login with Autodesk first to process files from ACC');
+      setError('Please login with Autodesk first to process files from Autodesk Forma');
       return;
     }
     
@@ -395,7 +395,7 @@ export default function ACCBrowserPage() {
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-bold text-gray-800 mb-8 flex items-center gap-3">
             <CloudIcon className="w-10 h-10 text-blue-600" />
-            ACC Project Browser
+            Autodesk Forma Project Browser
           </h1>
 
           {/* Connection Status Section */}
@@ -412,7 +412,7 @@ export default function ACCBrowserPage() {
                   <div className="flex-1">
                     <h3 className="font-semibold text-orange-900 text-lg mb-2">Not Connected to Autodesk</h3>
                     <p className="text-sm text-orange-700 mb-4">
-                      To browse your ACC/BIM 360 projects and files, you need to connect your Autodesk account first.
+                      To browse your Autodesk Forma projects and files, connect your Autodesk account first.
                       This is a one-time setup that securely connects your account.
                     </p>
                     <a
@@ -432,7 +432,7 @@ export default function ACCBrowserPage() {
                   <div className="flex-1">
                     <h3 className="font-semibold text-green-900 text-lg mb-2">Connected to Autodesk</h3>
                     <p className="text-sm text-green-700 mb-2">
-                      Your Autodesk account is connected. You can now browse your ACC hubs and projects.
+                      Your Autodesk account is connected. You can now browse your Autodesk Forma hubs and projects.
                     </p>
                     {user?.autodeskConnectedAt && (
                       <p className="text-xs text-green-600">
@@ -470,7 +470,7 @@ export default function ACCBrowserPage() {
                   <p className="text-sm break-words overflow-wrap-anywhere">{error}</p>
                   {error.includes('AUTH-012') || error.includes('failedDownload') || error.includes('Failed to get') ? (
                     <p className="text-sm mt-2">
-                      ⚠️ Your app doesn&apos;t have ACC file access permissions. 
+                      ⚠️ Your app doesn&apos;t have Autodesk Forma file access permissions. 
                       <a href="/upload" className="underline ml-1 font-semibold">Use manual upload instead</a>
                     </p>
                   ) : null}

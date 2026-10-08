@@ -35,10 +35,18 @@ BIM Health Report uses Autodesk Platform Services (APS) Design Automation to pro
 HOW IT WORKS
 ─────────────
 1. Connect your Autodesk credentials (Client ID + Client Secret) inside the app
-2. Log in with your Autodesk account via OAuth to access your ACC hubs
+2. In Settings, select "Connect Autodesk" and authorize the app using 3-legged OAuth
 3. Browse your ACC hubs → projects → folders to locate your Revit file
 4. Click "Process" on any .rvt file — the app uses Design Automation to analyze it
 5. Download the JSON report or view the interactive dashboard instantly
+
+AUTHENTICATION AND DATA ACCESS
+──────────────────────────────
+The app uses both Autodesk OAuth flows for separate purposes:
+• 3-legged OAuth is initiated when the user connects Autodesk in Settings. The user's consented token is used to list their ACC hubs, projects, folders, and files; browsing is read-only and reflects the user's Autodesk permissions.
+• 2-legged OAuth (client credentials) is used server-side only when processing a Revit file. It authenticates the app to Autodesk Design Automation and OSS for temporary input/output storage. It is not used to browse or select the user's ACC projects.
+• The 3-legged consent requests data:read for ACC browsing and user-profile:read for the user profile lookup after authorization.
+• The server-side 2-legged token requests data:read, data:write, data:create, bucket:read, bucket:create, and code:all for OSS storage and Design Automation processing.
 
 KEY FEATURES
 ─────────────
@@ -66,7 +74,7 @@ REQUIREMENTS
 ─────────────
 • An active Autodesk account with access to ACC/BIM 360
 • An APS (Autodesk Platform Services) app with Client ID and Client Secret
-• Data:Read scope enabled on your APS application
+• APS OAuth access for ACC browsing (3-legged) and Revit processing (2-legged); required scopes are listed in Additional Information
 
 (~2800 characters)
 
@@ -170,11 +178,15 @@ TECHNICAL STACK
 • Hosted on Vercel
 
 APS PERMISSIONS REQUIRED
-Your APS application must have the following OAuth scopes enabled:
-  data:read   – to access ACC files
-  data:write  – to store output reports
-  code:all    – for Design Automation workitems
-  bucket:create, bucket:read – for OSS output storage
+The app uses separate scopes for user-authorized ACC browsing and app-authorized processing:
+   3-legged OAuth (user connects in Settings):
+      data:read          – read the user's ACC hubs, projects, folders, and files
+      user-profile:read  – read the Autodesk profile in the OAuth callback
+
+   2-legged OAuth (server-side Revit processing only):
+      data:read, data:write, data:create – access and transfer temporary processing files
+      bucket:create, bucket:read         – create/check the app's OSS bucket
+      code:all                           – run Design Automation workitems
 
 REVIT VERSION SUPPORT
 The app automatically detects the Revit version of your file and runs it through the correct Design Automation engine. Supported versions: Revit 2023, 2024, 2025, 2026, 2027.
@@ -189,7 +201,7 @@ Revit files are processed transiently via Autodesk Design Automation. Output rep
 KNOWN LIMITATIONS
 • Processing time depends on Revit model complexity (typically 1–5 minutes)
 • Very large models (>500 MB) may approach the processing time limit
-• ACC file access requires proper APS app permissions (data:read scope)
+• ACC file access requires 3-legged data:read permission. Revit cloud processing additionally requires the server-side 2-legged scopes listed above.
 
 
 ───────────────────────────────────────────────────────────────────────────────
@@ -197,7 +209,7 @@ KNOWN LIMITATIONS
 ───────────────────────────────────────────────────────────────────────────────
 • Large Revit files (over 500 MB) may occasionally time out during processing. If this occurs, try uploading the file manually via the Upload page instead.
 
-• ACC file browsing requires your APS application to have the "data:read" OAuth scope. If you see a permissions error when loading hubs, verify your APS app configuration at aps.autodesk.com.
+• ACC file browsing requires the 3-legged "data:read" and "user-profile:read" scopes. Revit processing additionally uses a server-side 2-legged token with the OSS and Design Automation scopes listed above.
 
 • Revit version auto-detection relies on the Autodesk Model Derivative manifest. For files that have not been previously translated, the app will attempt all supported versions (2023–2027) automatically.
 

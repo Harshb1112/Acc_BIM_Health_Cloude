@@ -57,16 +57,8 @@ export async function GET(request: NextRequest) {
     console.log(`   Base URL: ${baseUrl}`);
     console.log(`   Callback URL: ${callbackUrl}`);
 
-    // Scopes for ACC/BIM 360 access
-    const scopes = [
-      'data:read',      // Read files from ACC
-      'data:write',     // Write files to ACC
-      'data:create',    // Create new files
-      'bucket:read',    // Read OSS buckets
-      'bucket:create',  // Create OSS buckets
-      'code:all',       // Design Automation API
-      'account:read'    // Read account and hub information
-    ].join(' ');
+    // ACC browsing is read-only; profile read is used by the OAuth callback.
+    const scopes = ['data:read', 'user-profile:read'].join(' ');
 
     // State contains userId for callback verification
     const state = Buffer.from(JSON.stringify({ 

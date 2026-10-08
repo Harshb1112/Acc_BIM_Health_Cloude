@@ -132,6 +132,18 @@ export default function SettingsPage() {
     alert('✅ Forge credentials saved successfully!');
   };
 
+  const handleAutodeskConnect = () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      alert('Please login first');
+      router.push('/login');
+      return;
+    }
+
+    document.cookie = `accessToken=${token}; path=/; max-age=600; SameSite=Lax`;
+    window.location.assign('/api/auth/autodesk/connect');
+  };
+
   const handleLogout = async () => {
     if (!confirm('Are you sure you want to logout?')) return;
     localStorage.clear();
@@ -600,7 +612,7 @@ export default function SettingsPage() {
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6 mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Why Connect Your Autodesk Account?</h3>
                   <ul className="text-sm text-gray-700 space-y-2 ml-4 list-disc">
-                    <li>Access your ACC/BIM 360 projects and files directly</li>
+                    <li>Access your Autodesk Forma projects and files directly</li>
                     <li>Process Revit files stored in your Autodesk cloud</li>
                     <li>Secure OAuth authentication - we never see your password</li>
                     <li>Automatic token refresh - stay connected seamlessly</li>
@@ -645,30 +657,14 @@ export default function SettingsPage() {
 
                     <div className="flex space-x-3">
                       {!user?.autodeskConnectedAt ? (
-                        <form 
-                          method="GET" 
-                          action="/api/auth/autodesk/connect"
-                          onSubmit={(e) => {
-                            // Set token in cookie before redirect
-                            const token = localStorage.getItem('accessToken');
-                            if (!token) {
-                              e.preventDefault();
-                              alert('Please login first');
-                              router.push('/login');
-                              return;
-                            }
-                            // Set cookie for the API route
-                            document.cookie = `accessToken=${token}; path=/; max-age=600; SameSite=Lax`;
-                          }}
-                        >
-                          <button
-                            type="submit"
+                        <button
+                            type="button"
+                            onClick={handleAutodeskConnect}
                             className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition shadow-lg"
                           >
                             <Key className="w-5 h-5" />
                             <span>Connect Autodesk Account</span>
-                          </button>
-                        </form>
+                        </button>
                       ) : (
                         <button
                           onClick={async () => {

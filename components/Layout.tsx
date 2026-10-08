@@ -133,7 +133,7 @@ export default function Layout({ children }: LayoutProps) {
               onClick={handleMenuItemClick}
             >
               <Cloud size={20} />
-              <span>ACC Browser</span>
+              <span>Autodesk Forma Browser</span>
             </Link>
 
             <Link 
